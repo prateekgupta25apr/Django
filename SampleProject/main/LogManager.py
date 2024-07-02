@@ -4,7 +4,7 @@ import re
 import shutil
 from datetime import datetime
 
-from Practice.settings import BASE_DIR
+from SampleProject.settings import BASE_DIR
 
 file_path = str(BASE_DIR).replace("\\", "/") + "/logs/"
 main_log_file = file_path + "logs.log"

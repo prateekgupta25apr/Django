@@ -1,6 +1,6 @@
 from django.utils.deprecation import MiddlewareMixin
 import jwt
-from Practice.settings import COOKIE_NAME
+from SampleProject.settings import COOKIE_NAME
 
 
 class SessionFilterMiddleware(MiddlewareMixin):
