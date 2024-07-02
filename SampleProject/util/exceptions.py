@@ -5,7 +5,7 @@ import json
 from main.LogManager import logger
 
 
-class PracticeException(BaseException):
+class SampleProjectException(BaseException):
     UNKNOWN_ERROR = 500
     MISSING_REQUIRED_PARAMETERS = 400
     PAGE_NOT_FOUND = 404
