@@ -47,7 +47,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'main.MainMiddleware.SessionFilterMiddleware',
+    'config.SessionFilterMiddleware.SessionFilterMiddleware',
 ]
 
 ROOT_URLCONF = 'SampleProject.urls'
@@ -129,7 +129,10 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-COOKIE_NAME = "prateek_gupta_portfolio"
+COOKIE_NAME = "pg"
+
+from prateek_gupta.UvicornLogs import  uvicorn_logs_config
+LOGGING=uvicorn_logs_config
 
 try:
     from .local_settings import *

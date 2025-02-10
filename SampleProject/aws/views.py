@@ -5,9 +5,9 @@ import boto3
 from django.conf import settings
 from django.http import HttpResponse
 
-from main.LogManager import logger
-from util import get_success_response
-from util.exceptions import log_error, SampleProjectException
+from prateek_gupta.LogManager import logger
+from prateek_gupta import get_success_response
+from prateek_gupta.exceptions import log_error, ServiceException
 
 
 def get_s3_client():
@@ -45,11 +45,11 @@ def upload_file(request):
         result = dict()
         result['message'] = "Success"
         return get_success_response(result)
-    except SampleProjectException as e:
+    except ServiceException as e:
         return e.get_error_response()
-    except Exception as e:
+    except Exception:
         log_error()
-        return SampleProjectException().get_error_response()
+        return ServiceException().get_error_response()
 
 
 def delete_file(request):
@@ -64,11 +64,11 @@ def delete_file(request):
         result = dict()
         result['message'] = "Success"
         return get_success_response(result)
-    except SampleProjectException as e:
+    except ServiceException as e:
         return e.get_error_response()
     except Exception:
         log_error()
-        return SampleProjectException().get_error_response()
+        return ServiceException().get_error_response()
 
 
 def get_email_content(request):
