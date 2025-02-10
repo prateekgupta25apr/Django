@@ -1,23 +1,17 @@
 from django.utils.deprecation import MiddlewareMixin
 
-from SampleProject.settings import COOKIE_NAME
+from SampleProject.settings import COOKIE_NAME, COOKIE_SECRET
 from prateek_gupta import process_cookie
 from prateek_gupta.LogManager import logger
 from prateek_gupta.exceptions import log_error
 
 
 class SessionFilterMiddleware(MiddlewareMixin):
-
-    def __init__(self, get_response):
-        self.cookie_name=COOKIE_NAME
-        super().__init__(get_response)
-
-
-    def process_request(self,request):
+    @staticmethod
+    def process_request(request):
         # noinspection PyBroadException
         try:
-            cookie=request.COOKIES.get(self.cookie_name, "")
-            request.current_session = CurrentSession(request,cookie)
+            request.current_session = CurrentSession(request)
             logger.info("Pre processing is done")
         except Exception:
             log_error()
@@ -25,7 +19,8 @@ class SessionFilterMiddleware(MiddlewareMixin):
 
     @staticmethod
     def process_response(request, response):
-        response.set_cookie()
+        response.set_cookie(COOKIE_NAME,process_cookie(False,COOKIE_SECRET,
+                                                       cookie_data={"userId":1}))
         response['Access-Control-Allow-Origin'] = (
             request.META.get("HTTP_ORIGIN", None)) \
             if request.META.get("HTTP_ORIGIN", None) else '*'
@@ -44,11 +39,12 @@ class SessionFilterMiddleware(MiddlewareMixin):
 
 class CurrentSession:
     """Objects of this class will be used for details of the current session"""
-    def __init__(self,request,cookie):
+    def __init__(self,request):
         # noinspection PyBroadException
         try:
+            cookie = request.COOKIES.get(COOKIE_NAME, "")
             if not any(x in request.build_absolute_uri() for x in ['no-auth']):
-                process_cookie(True,"",cookie=cookie)
+                process_cookie(True,COOKIE_SECRET,cookie=cookie)
         except Exception:
             log_error()
         super().__init__()

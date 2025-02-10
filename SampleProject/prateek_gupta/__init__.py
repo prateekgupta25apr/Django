@@ -7,14 +7,15 @@ import json
 import jwt
 from django.http import HttpResponse
 
-from prateek_gupta.exceptions import ServiceException
+
 
 project_dir=str(Path(__file__).resolve().parent.parent).replace("\\", "/")
 if project_dir[-1]!="/":
     project_dir+="/"
 console_logs=True
 
-def process_cookie(decode, secret_key, cookie="", cookie_data=None,
+def process_cookie(decode, secret_key, cookie="",
+                   cookie_data=None,
                    algorithms=None):
     if cookie_data is None:
         cookie_data = {}
@@ -33,14 +34,15 @@ def process_cookie(decode, secret_key, cookie="", cookie_data=None,
         result=cookie_data
     else:
         if cookie_data:
-            cookie=jwt.encode(cookie_data, secret_key, algorithms)
+            cookie=jwt.encode(cookie_data, secret_key, algorithms[0])
         else:
             cookie=""
         result=cookie
     return result
 
 
-async def load_config_value(file_path,config_properties,required_fields,
+async def load_config_value(file_path,config_properties,
+                            required_fields,
                             expected_fields):
     # noinspection PyBroadException
     try:
@@ -86,6 +88,7 @@ def get_success_response(body):
 def request_mapping(method_name):
     def request_mapping_args(view_name):
         async def updated_view(request, *args, **kwargs):
+            from prateek_gupta.exceptions import ServiceException
             try:
                 if request.method=='OPTIONS':
                     if request.method == "OPTIONS":
