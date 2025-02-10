@@ -25,10 +25,6 @@ def process_cookie(decode, secret_key, cookie="",
     if decode:
         if cookie:
             cookie_data = jwt.decode(cookie,secret_key,algorithms)
-            if cookie_data:
-                cookie_data = json.loads(cookie_data['sub'])
-            else:
-                cookie_data = dict()
         else:
             cookie_data=dict()
         result=cookie_data
