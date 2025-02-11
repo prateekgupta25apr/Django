@@ -14,6 +14,13 @@ if project_dir[-1]!="/":
     project_dir+="/"
 console_logs=True
 
+try:
+    from . import *
+
+    local_run = True
+except ImportError:
+    local_run = False
+
 def process_cookie(decode, secret_key, cookie="",
                    cookie_data=None,
                    algorithms=None):
