@@ -48,8 +48,7 @@ Thumbs.db
 *.mov
 *.wmv
 
-# Local file
-PythonService/local_settings.py
-
+# Local files
+prateek_gupta/local_settings.py
 prateek_gupta/configuration.properties
 

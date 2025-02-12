@@ -1,10 +1,17 @@
 from django.urls import path
 
-from . import views
+from . import sync_views as sv
+from . import async_views as av
 
 urlpatterns = [
-    path('upload_file', views.upload_file),
-    path('delete_file', views.delete_file),
-    path('get_email_content', views.get_email_content),
-    path('get_file', views.get_file),
+    path('async/get_file', av.get_file),
+    path('async/upload_file', av.upload_file),
+    path('async/delete_file', av.delete_file),
+    path('async/get_pre_signed_url', sv.pre_signed_url),
+
+    path('sync/get_file', sv.get_file),
+    path('sync/upload_file', sv.upload_file),
+    path('sync/delete_file', sv.delete_file),
+    path('sync/get_pre_signed_url', sv.pre_signed_url),
+    path('sync/get_email_content', sv.get_email_content),
 ]

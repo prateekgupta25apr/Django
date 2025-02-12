@@ -134,13 +134,3 @@ COOKIE_SECRET = "pg"
 
 from prateek_gupta.UvicornLogs import  uvicorn_logs_config
 LOGGING=uvicorn_logs_config
-
-try:
-    from .local_settings import *
-# Project is on production
-except ImportError:
-    # AWS
-    AWS_ACCESS_KEY_ID = 'your-access-key-id'
-    AWS_SECRET_ACCESS_KEY = 'your-secret-access-key'
-    AWS_STORAGE_BUCKET_NAME = 'your-bucket-name'
-    AWS_S3_REGION_NAME = 'your-region'

@@ -1,9 +1,6 @@
-from django.conf import settings
-from django.http import HttpResponse
-
-from prateek_gupta import get_api_response
 from prateek_gupta.LogManager import logger
 from prateek_gupta.exceptions import ServiceException
+from prateek_gupta.utils import get_api_response
 
 
 async def test(request):

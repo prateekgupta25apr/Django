@@ -1,7 +1,7 @@
 from django.utils.deprecation import MiddlewareMixin
 
 from SampleProject.settings import COOKIE_NAME, COOKIE_SECRET
-from prateek_gupta import process_cookie
+from prateek_gupta.utils import process_cookie
 from prateek_gupta.LogManager import logger
 from prateek_gupta.exceptions import log_error
 
