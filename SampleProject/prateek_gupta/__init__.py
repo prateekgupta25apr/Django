@@ -17,14 +17,15 @@ try:
 except ImportError:
     local_run = False
 
-asyncio.create_task(load_config_value(
-    project_dir + "prateek_gupta/configuration.properties",
-    configuration_properties,
-    [],
-    [
-        'AWS_ACCESS_KEY_ID',
-        'AWS_SECRET_ACCESS_KEY',
-        'AWS_S3_REGION_NAME',
-        'AWS_STORAGE_BUCKET_NAME'
-    ]
-))
+def on_load():
+    asyncio.create_task(load_config_value(
+        project_dir + "prateek_gupta/configuration.properties",
+        configuration_properties,
+        [],
+        [
+            'AWS_ACCESS_KEY_ID',
+            'AWS_SECRET_ACCESS_KEY',
+            'AWS_S3_REGION_NAME',
+            'AWS_STORAGE_BUCKET_NAME'
+        ]
+    ))
