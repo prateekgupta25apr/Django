@@ -71,7 +71,8 @@ def get_file_content_in_bytes(file_name=None):
 
     return response_in_bytes
 
-def upload(file,bucket_name=None,prefix=""):
+def upload(file,bucket_name=None,prefix="",
+                 file_name=None,content_type=None):
     logger.info("Entering upload()")
     s3_client = get_s3_client()
 
@@ -82,8 +83,10 @@ def upload(file,bucket_name=None,prefix=""):
         raise ServiceException(
             message="Couldn't establish a connection to AWS")
 
-    s3_client.upload_fileobj(file, bucket_name, (prefix + file.name),
-                             ExtraArgs={'ContentType': file.content_type})
+    s3_client.upload_fileobj(
+        file, bucket_name, (prefix + (file_name if file_name is not None else file.name)),
+        ExtraArgs={'ContentType':
+                       (content_type if content_type is not None else file.content_type)})
     logger.info("Exiting upload()")
 
 

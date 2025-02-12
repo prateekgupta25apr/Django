@@ -31,12 +31,7 @@ async def upload_file(request):
     try:
         file=request.FILES['file']
 
-        bucket_name = get_bucket_name()
-
-        if not bucket_name:
-            raise ServiceException(message="Couldn't get bucket name")
-
-        await upload(bucket_name, file)
+        await upload(file)
         response=dict()
         response['message']="Successfully uploaded the file : "+file.name
         response=get_success_response(response)
