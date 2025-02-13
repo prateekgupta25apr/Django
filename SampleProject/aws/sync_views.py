@@ -8,9 +8,8 @@ from prateek_gupta.aws_sync import (check_file_existence, get_file_content_in_by
                                     get_bucket_name, upload, delete, \
                                     get_s3_client, pre_signed_url)
 from prateek_gupta.exceptions import ServiceException
-from prateek_gupta.utils import (get_success_response, request_mapping, async_iterator,
-                                 get_api_response)
-
+from prateek_gupta.utils import (request_mapping, async_iterator)
+from utils import (get_success_response, get_api_response)
 
 @request_mapping("GET")
 def get_file(request):

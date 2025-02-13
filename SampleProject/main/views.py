@@ -1,6 +1,6 @@
 from prateek_gupta.LogManager import logger
 from prateek_gupta.exceptions import ServiceException
-from prateek_gupta.utils import get_api_response
+from utils import get_api_response
 
 
 async def test(request):

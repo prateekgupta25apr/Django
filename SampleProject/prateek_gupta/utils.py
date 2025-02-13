@@ -63,18 +63,6 @@ async def load_config_value(file_path,config_properties,
         print(e)
         sys.exit(0)
 
-def get_api_response(body,status):
-    """Method to return generic JSON response for an API"""
-    if type(body) is dict:
-        response = json.dumps(body)
-    else:
-        response = body
-    return HttpResponse(response, content_type="application/json", status=status)
-
-def get_success_response(body):
-    """Method to return generic JSON response for an API"""
-    return get_api_response(body,200)
-
 def request_mapping(method_name):
     def request_mapping_args(view_name):
         async def updated_view(request, *args, **kwargs):

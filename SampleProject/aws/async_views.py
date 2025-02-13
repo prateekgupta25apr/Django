@@ -1,10 +1,9 @@
 from django.http import FileResponse
 
-
 from prateek_gupta.aws_async import *
-from prateek_gupta.exceptions import ServiceException, log_error
-from prateek_gupta.utils import (get_success_response, request_mapping, async_iterator,
-                                 get_api_response)
+from prateek_gupta.exceptions import ServiceException
+from prateek_gupta.utils import (request_mapping, async_iterator)
+from utils import (get_success_response, get_api_response)
 
 
 @request_mapping("GET")
