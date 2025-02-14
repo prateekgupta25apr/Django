@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('main/', include("main.urls")),
     path('aws/', include("aws.urls")),
+    path('documents/', include("documents.urls")),
 ]

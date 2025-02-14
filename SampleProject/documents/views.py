@@ -1,11 +1,13 @@
 from io import BytesIO
 
+import pandas
 import pandas as pd
 from django.http import HttpResponse
-from django.shortcuts import render
+from pandas import Timestamp
 
-from prateek_gupta import request_mapping
 from prateek_gupta.exceptions import ServiceException
+from prateek_gupta.utils import request_mapping
+from utils import get_success_response
 
 
 @request_mapping("GET")
@@ -38,4 +40,27 @@ async def extract_urls(request):
     except Exception:
         response = (ServiceException(error_id=ServiceException.UNKNOWN_ERROR)
                     .get_error_response())
+    return response
+
+@request_mapping("POST")
+async def excel_to_json(request):
+    # noinspection PyBroadException
+    try:
+        file = request.FILES.get('file')
+        parsed_data=pandas.read_excel(file)
+        data=dict()
+        for row_id,row in parsed_data.iterrows():
+            row_data = dict()
+            for key,value in row.items():
+                if str(value) in ['nan','NaT']:
+                    value=""
+                elif type(value) in [Timestamp]:
+                    value=str(value)
+                row_data[key]=value
+            data["Row_"+str(int(str(row_id))+1)]=row_data
+        response=get_success_response({"data":data})
+    except ServiceException as e:
+        response = e.get_error_response()
+    except Exception:
+        response = ServiceException().get_error_response()
     return response
