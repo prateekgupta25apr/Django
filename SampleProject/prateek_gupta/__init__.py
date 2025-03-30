@@ -17,6 +17,7 @@ try:
 except ImportError:
     local_run = False
 
+
 def on_load():
     asyncio.create_task(load_config_value(
         project_dir + "prateek_gupta/configuration.properties",
