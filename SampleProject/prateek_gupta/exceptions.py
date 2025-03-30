@@ -29,7 +29,7 @@ class ServiceException(BaseException):
                 self.message = "Method not allowed"
             elif error_id == 500:
                 self.message = "An unknown error has occurred"
-        elif not message:
+        elif message:
             self.message=message
             self.error_id=ServiceException.UNKNOWN_ERROR
         else:
