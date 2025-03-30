@@ -13,5 +13,5 @@ async def test(request):
     except Exception:
         response = (ServiceException(error_id=ServiceException.UNKNOWN_ERROR)
                     .get_error_response())
-    logger.info("Exiting github_add_comment()")
+    logger.info("Exiting test()")
     return response
