@@ -11,6 +11,7 @@ from prateek_gupta.exceptions import ServiceException
 from prateek_gupta.utils import (request_mapping, async_iterator)
 from utils import (get_success_response, get_api_response)
 
+
 @request_mapping("GET")
 def get_file(request):
     # noinspection PyBroadException
@@ -25,7 +26,7 @@ def get_file(request):
     except ServiceException as e:
         response = e.get_error_response()
     except Exception:
-        response=ServiceException().get_error_response()
+        response = ServiceException().get_error_response()
     return response
 
 
@@ -34,12 +35,12 @@ def upload_file(request):
     logger.info("Entering upload_file()")
     # noinspection PyBroadException
     try:
-        file=request.FILES['file']
+        file = request.FILES['file']
 
         upload(file)
-        response=dict()
-        response['message']="Successfully uploaded the file : "+file.name
-        response=get_success_response(response)
+        response = dict()
+        response['message'] = "Successfully uploaded the file : " + file.name
+        response = get_success_response(response)
     except ServiceException as e:
         response = e.get_error_response()
     except Exception:
@@ -53,12 +54,12 @@ def delete_file(request):
     logger.info("Entering delete_file()")
     # noinspection PyBroadException
     try:
-        file_name=request.GET['file_name']
+        file_name = request.GET['file_name']
 
         delete(file_name)
-        response=dict()
-        response['message']="Successfully delete the file : "+file_name
-        response=get_success_response(response)
+        response = dict()
+        response['message'] = "Successfully delete the file : " + file_name
+        response = get_success_response(response)
     except ServiceException as e:
         response = e.get_error_response()
     except Exception:
@@ -75,14 +76,15 @@ def get_pre_signed_url(request):
         file_key = request.GET.get('file_name')
 
         url = pre_signed_url(file_key)
-        response=get_success_response({"message":"Generated pre-signed url successfully",
-                     "Pre-Signed URL":url})
+        response = get_success_response({"message": "Generated pre-signed url successfully",
+                                         "Pre-Signed URL": url})
 
     except ServiceException as e:
         response = e.get_error_response()
     except Exception:
         response = ServiceException().get_error_response()
     return response
+
 
 def get_email_content(request):
     message_id = request.GET.get('message_id')
@@ -114,4 +116,3 @@ def get_email_content(request):
         email_details['body'] = msg.get_payload(decode=True).strip()
 
     return HttpResponse(json.dumps(email_details), content_type="application/json")
-

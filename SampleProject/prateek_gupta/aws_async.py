@@ -5,7 +5,8 @@ import prateek_gupta
 from prateek_gupta.exceptions import *
 
 local_run=prateek_gupta.local_run
-configuration_properties=prateek_gupta.configuration_properties
+configuration_properties = prateek_gupta.configuration_properties
+
 
 async def get_s3_client():
     logger.info("Entering get_s3_client()")
@@ -40,6 +41,7 @@ async def get_s3_client():
     logger.info("Existing get_s3_client()")
     return s3_client
 
+
 def get_bucket_name(default=False):
     # noinspection PyBroadException
     try:
@@ -53,6 +55,7 @@ def get_bucket_name(default=False):
         log_error()
         bucket_name=None
     return bucket_name
+
 
 async def get_file_content_in_bytes(file_name=None):
     if file_name is None:
@@ -74,6 +77,7 @@ async def get_file_content_in_bytes(file_name=None):
 
     return response_in_bytes
 
+
 async def upload(file,bucket_name=None, prefix="",
                  file_name=None,content_type=None):
     logger.info("Entering upload()")
@@ -86,9 +90,11 @@ async def upload(file,bucket_name=None, prefix="",
                 message="Couldn't establish a connection to AWS")
 
         await s3_client.upload_fileobj(
-            file, bucket_name, (prefix+(file_name if file_name is not None else file.name)),
+            file, bucket_name, (prefix+(file_name if file_name is not None
+                                        else file.name)),
             ExtraArgs={'ContentType':
-                           (content_type if content_type is not None else file.content_type)})
+                           (content_type if content_type is not None
+                            else file.content_type)})
     logger.info("Exiting upload()")
 
 

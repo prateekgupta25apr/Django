@@ -8,8 +8,6 @@ import jwt
 from asgiref.sync import sync_to_async
 from django.db import connections, transaction
 
-
-
 from utils import get_success_response
 import mysql.connector
 
@@ -98,6 +96,7 @@ def request_mapping(method_name):
 async def async_iterator(data):
     yield data
 
+
 @sync_to_async
 def execute_query(query, method=None, thread_execution=None):
     # noinspection PyBroadException
@@ -129,6 +128,7 @@ def execute_query(query, method=None, thread_execution=None):
         exceptions.log_error()
         raise e
 
+
 def execute_thread_query(query, method=None):
     try:
         from prateek_gupta import exceptions, configuration_properties
@@ -157,6 +157,7 @@ def execute_thread_query(query, method=None):
         logger.info(f"DB_EXECUTION_ERROR: Even manual connection failed")
         raise e
 
+
 @sync_to_async
-def execute_as_async(method,*args,**kwargs):
-    return method(*args,**kwargs)
+def execute_as_async(method, *args, **kwargs):
+    return method(*args, **kwargs)

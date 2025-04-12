@@ -15,16 +15,16 @@ from prateek_gupta import on_load
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'SampleProject.settings')
 
+
 class ASGiApplication:
 
     def __init__(self):
-        self.app=get_asgi_application()
+        self.app = get_asgi_application()
 
-    async def __call__(self, scope,receive,send):
-        if scope['type']=='lifespan':
+    async def __call__(self, scope, receive, send):
+        if scope['type'] == 'lifespan':
             await on_load()
-        await self.app(scope,receive,send)
+        await self.app(scope, receive, send)
 
 
 application = ASGiApplication()
-

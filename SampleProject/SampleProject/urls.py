@@ -22,4 +22,5 @@ urlpatterns = [
     path('main/', include("main.urls")),
     path('aws/', include("aws.urls")),
     path('documents/', include("documents.urls")),
+    path('kafka/', include("kafka.kafka_urls")),
 ]

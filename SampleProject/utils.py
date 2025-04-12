@@ -6,7 +6,7 @@ from django.http import HttpResponse
 def get_api_response(body,status):
     """Method to return generic JSON response for an API"""
     try:
-        if type(body) is dict:
+        if type(body) in [dict, list]:
             response = json.dumps(body)
         else:
             response = body
