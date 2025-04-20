@@ -23,4 +23,5 @@ urlpatterns = [
     path('aws/', include("aws.urls")),
     path('documents/', include("documents.urls")),
     path('kafka/', include("kafka.kafka_urls")),
+    path('redis/', include("redis_module.redis_urls")),
 ]
