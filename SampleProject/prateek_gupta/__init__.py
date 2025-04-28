@@ -3,25 +3,18 @@ import threading
 from pathlib import Path
 
 from prateek_gupta.utils import load_config_value
+from .project_settings import *
 
 project_dir = str(Path(__file__).resolve().parent.parent).replace("\\", "/")
 if project_dir[-1] != "/":
     project_dir += "/"
-console_logs = True
 
 configuration_properties = dict()
-
-try:
-    from .local_settings import *
-
-    local_run = True
-except ImportError:
-    local_run = False
 
 
 async def on_load():
     load_config_task = asyncio.create_task(load_config_value(
-        project_dir + "prateek_gupta/configuration.properties",
+        configuration_properties_file_path,
         configuration_properties,
         [],
         [

@@ -133,5 +133,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 COOKIE_NAME = "pg"
 COOKIE_SECRET = "pg"
 
-from prateek_gupta.UvicornLogs import  uvicorn_logs_config
-LOGGING=uvicorn_logs_config
+from prateek_gupta.UvicornLogs import uvicorn_logs_config
+LOGGING = uvicorn_logs_config
