@@ -16,25 +16,8 @@ async def on_load():
     load_config_task = asyncio.create_task(load_config_value(
         configuration_properties_file_path,
         configuration_properties,
-        [],
-        [
-            'AWS_ACCESS_KEY_ID',
-            'AWS_SECRET_ACCESS_KEY',
-            'AWS_S3_REGION_NAME',
-            'AWS_STORAGE_BUCKET_NAME',
-            'REDIS_HOST',
-            'REDIS_PORT',
-            'REDIS_SSL',
-            'REDIS_PASSWORD',
-            'KAFKA_ENABLE',
-            'KAFKA_BROKER',
-            'KAFKA_CONSUMER_GROUP',
-            'KAFKA_SECURITY_PROTOCOL',
-            'KAFKA_SASL_MECHANISM',
-            'KAFKA_SASL_USERNAME',
-            'KAFKA_SASL_PASSWORD',
-            'KAFKA_AWS_CA_FILE_PATH'
-        ]
+        required_fields,
+        expected_fields
     ))
 
     await load_config_task

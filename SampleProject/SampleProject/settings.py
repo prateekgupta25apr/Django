@@ -15,6 +15,18 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Loading the config values
+import asyncio
+import threading
+from prateek_gupta import configuration_properties, on_load
+
+thread = threading.Thread(
+    target=asyncio.run,
+    args=(on_load(),)
+)
+thread.start()
+thread.join()
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -80,13 +92,14 @@ WSGI_APPLICATION = 'SampleProject.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': "sample_project_1",
-        'USER': "pg",
-        'PASSWORD': "PGroot25#",
-        'HOST': "65.0.149.61",
+        'NAME': configuration_properties['db_default_schema'],
+        'USER': configuration_properties['db_user_name'],
+        'PASSWORD': configuration_properties['db_password'],
+        'HOST': configuration_properties['db_host'],
         'PORT': '3306',
     }
 }
