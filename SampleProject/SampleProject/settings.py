@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'main',
     'aws',
     'documents',
+    'open_search',
 ]
 
 MIDDLEWARE = [
