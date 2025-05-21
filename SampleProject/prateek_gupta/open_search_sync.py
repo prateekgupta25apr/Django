@@ -111,7 +111,8 @@ def upsert_record(index_name, record_id, data, bulk=False):
     return result
 
 
-def partial_update_record(index_name, record_id, data, bulk=False):
+def partial_update_record(index_name, record_id, data,
+                          bulk=False):
     result = {}
     client = get_client()
     if client.indices.exists(index=index_name):

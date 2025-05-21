@@ -15,21 +15,24 @@ class ServiceException(BaseException):
         PAGE_NOT_FOUND = 404
         METHOD_NOT_ALLOWED = 405
 
-    def __init__(self, exception_type:ExceptionType=None, message=""):
-        if exception_type and message:
-            self.exception_type=exception_type
+
+
+    def __init__(self, exception_type:ExceptionType=None,
+                 status_id=None, message=""):
+        if status_id and message:
+            self.status_id=status_id
             self.message=message
         elif exception_type is not None:
-            self.exception_type = exception_type
+            self.status_id = exception_type.value
             self.message = configuration_properties["exception_messages"].get(
-                self.exception_type.name)
+                exception_type.name)
         elif message:
             self.message=message
-            self.exception_type=ServiceException.ExceptionType.UNKNOWN_ERROR
+            self.status_id=ServiceException.ExceptionType.UNKNOWN_ERROR.value
         else:
-            self.exception_type=ServiceException.ExceptionType.UNKNOWN_ERROR
+            self.status_id=ServiceException.ExceptionType.UNKNOWN_ERROR.value
             self.message = configuration_properties["exception_messages"].get(
-                self.exception_type.name)
+                ServiceException.ExceptionType.UNKNOWN_ERROR.name)
 
         super().__init__(self.message)
 
@@ -42,9 +45,9 @@ class ServiceException(BaseException):
             logger.error("Error while responding the api : "+request.path)
 
         response = dict()
-        if self.exception_type is not None:
+        if self.status_id is not None:
             response["message"] = self.message
-            return get_api_response(response,self.exception_type.value)
+            return get_api_response(response,self.status_id)
         else:
             response["message"] = self.message
             return get_api_response(response,
