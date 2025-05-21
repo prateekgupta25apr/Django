@@ -6,7 +6,7 @@ from prateek_gupta.kafka_sync import (send, create_topic, get_all_topics, get_to
                                       update_topic_increase_partition, update_topic,
                                       delete_topic, get_committed_offset, get_messages)
 from prateek_gupta.utils import request_mapping
-from utils import get_success_response
+from utils import get_success_response, get_error_response
 
 
 @request_mapping("POST")
@@ -19,9 +19,9 @@ def send_message_request(request):
         send(topic, message)
         response = get_success_response({"message": "Sent message"})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing send_message_request()")
     return response
 
@@ -35,9 +35,9 @@ def get_all_topics_request(request):
         response = get_success_response({
             "message": "Topics fetched successfully", "topics": topics})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing get_all_topic_request()")
     return response
 
@@ -52,9 +52,9 @@ def get_topic_request(request):
         response = get_success_response({
             "message": "Topics fetched successfully", "topic": topic})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing get_topic_request()")
     return response
 
@@ -70,9 +70,9 @@ def create_topic_request(request):
         create_topic(topic_name, partitions, replication_factor)
         response = get_success_response({"message": "Topic created successfully"})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing create_topic()")
     return response
 
@@ -87,9 +87,9 @@ def update_topic_increase_partition_request(request):
         update_topic_increase_partition(topic_name, partitions)
         response = get_success_response({"message": "Updated partitions successfully"})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing update_topic_increase_partition_request()")
     return response
 
@@ -105,9 +105,9 @@ def update_topic_request(request):
         update_topic(topic_name, config_name, config_value)
         response = get_success_response({"message": "Updated topic config successfully"})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing update_topic_request()")
     return response
 
@@ -121,9 +121,9 @@ def delete_topic_request(request):
         delete_topic(topic_name)
         response = get_success_response({"message": "Topics deleted successfully"})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing delete_topic_request()")
     return response
 
@@ -141,9 +141,9 @@ def get_committed_offset_request(request):
             "message": f"Successfully fetched commited offset as {committed_offset}"
             if committed_offset != -1001 else "No committed offset for group"})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing get_committed_offset_request()")
     return response
 
@@ -159,8 +159,8 @@ def get_messages_request(request):
         response = get_success_response({"message": "Successfully fetched messages",
                                          "messages": messages})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing get_messages_request()")
     return response

@@ -1,7 +1,7 @@
 from prateek_gupta.LogManager import logger
 from prateek_gupta.exceptions import ServiceException
 from prateek_gupta.utils import execute_query
-from utils import get_api_response
+from utils import get_api_response, get_error_response
 
 
 async def test(request):
@@ -11,7 +11,7 @@ async def test(request):
         result= await execute_query("select schema();",'fetchone')
         response = get_api_response({"message":"Success","result":result}, 200)
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
         response = (ServiceException(
             exception_type=ServiceException.ExceptionType.UNKNOWN_ERROR)

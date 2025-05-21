@@ -7,7 +7,7 @@ from pandas import Timestamp
 
 from prateek_gupta.exceptions import ServiceException
 from prateek_gupta.utils import request_mapping
-from utils import get_success_response
+from utils import get_success_response, get_error_response
 
 
 @request_mapping("GET")
@@ -62,7 +62,7 @@ async def excel_to_json(request):
             data["Row_"+str(int(str(row_id))+1)]=row_data
         response=get_success_response({"data":data})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     return response

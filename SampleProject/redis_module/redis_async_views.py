@@ -2,7 +2,7 @@ from prateek_gupta.LogManager import logger
 from prateek_gupta.exceptions import ServiceException
 from prateek_gupta.redis_async import get_value, upsert, search_keys, delete_value
 from prateek_gupta.utils import request_mapping
-from utils import get_success_response
+from utils import get_success_response, get_error_response
 
 
 @request_mapping("GET")
@@ -16,9 +16,9 @@ async def get_request(request):
         response = get_success_response({
             "message": "Successfully fetched the value", "value": value})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing get_request()")
     return response
 
@@ -34,9 +34,9 @@ async def upsert_request(request):
         await upsert(key, value, use_map.lower() == "true")
         response = get_success_response({"message": "Successfully saved the value"})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing upsert_request()")
     return response
 
@@ -51,9 +51,9 @@ async def search_keys_request(request):
         response = get_success_response({
             "message": "Successfully found the keys", "data": matches})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing search_keys_request()")
     return response
 
@@ -68,8 +68,8 @@ async def delete_request(request):
         await delete_value(key, use_map.lower() == "true")
         response = get_success_response({"message": "Successfully deleted the value"})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing delete_request()")
     return response

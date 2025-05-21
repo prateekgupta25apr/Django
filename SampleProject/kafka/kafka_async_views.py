@@ -5,7 +5,7 @@ from prateek_gupta.exceptions import ServiceException
 from prateek_gupta.kafka_async import (send, get_all_topics, get_topic,
                                        get_committed_offset, get_messages)
 from prateek_gupta.utils import request_mapping
-from utils import get_success_response
+from utils import get_success_response, get_error_response
 
 
 @request_mapping("POST")
@@ -18,9 +18,9 @@ async def send_message_request(request):
         await send(topic, message)
         response = get_success_response({"message": "Sent message"})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing send_message_request()")
     return response
 
@@ -34,9 +34,9 @@ async def get_all_topics_request(request):
         response = get_success_response({
             "message": "Topics fetched successfully", "topics": topics})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing get_all_topics_request()")
     return response
 
@@ -51,9 +51,9 @@ async def get_topic_request(request):
         response = get_success_response({
             "message": "Topics fetched successfully", "topic": topic})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing get_topic_request()")
     return response
 
@@ -71,9 +71,9 @@ async def get_committed_offset_request(request):
             "message": f"Successfully fetched commited offset as {committed_offset}"
             if committed_offset else "No committed offset for group"})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing get_committed_offset_request()")
     return response
 
@@ -89,8 +89,8 @@ async def get_messages_request(request):
         response = get_success_response({"message": "Successfully fetched messages",
                                          "messages": messages})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing get_messages_request()")
     return response

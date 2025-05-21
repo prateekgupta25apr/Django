@@ -9,7 +9,7 @@ from prateek_gupta.aws_sync import (check_file_existence, get_file_content_in_by
                                     get_s3_client, pre_signed_url)
 from prateek_gupta.exceptions import ServiceException
 from prateek_gupta.utils import (request_mapping, async_iterator)
-from utils import (get_success_response, get_api_response)
+from utils import (get_success_response, get_api_response, get_error_response)
 
 
 @request_mapping("GET")
@@ -24,9 +24,9 @@ def get_file(request):
         else:
             response = get_api_response({"message": "File not found"}, 400)
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     return response
 
 
@@ -42,9 +42,9 @@ def upload_file(request):
         response['message'] = "Successfully uploaded the file : " + file.name
         response = get_success_response(response)
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing upload_file()")
     return response
 
@@ -61,9 +61,9 @@ def delete_file(request):
         response['message'] = "Successfully delete the file : " + file_name
         response = get_success_response(response)
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing delete_file()")
     return response
 
@@ -80,9 +80,9 @@ def get_pre_signed_url(request):
                                          "Pre-Signed URL": url})
 
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     return response
 
 

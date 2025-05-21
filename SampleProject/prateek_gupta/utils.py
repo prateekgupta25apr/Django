@@ -86,7 +86,7 @@ def request_mapping(method_name):
                 else:
                     return view_name(request, *args, **kwargs)
             except ServiceException as e:
-                return e.get_error_response()
+                return get_error_response(e)
 
         return updated_view
 

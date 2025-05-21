@@ -6,7 +6,7 @@ from prateek_gupta.open_search_sync import (
     get_index, create_index, update_index, delete_index, get_record,
     upsert_record, partial_update_record, delete_record)
 from prateek_gupta.utils import request_mapping
-from utils import get_success_response
+from utils import get_success_response, get_error_response
 
 
 @request_mapping("GET")
@@ -24,9 +24,9 @@ def get_index_request(request):
             response = get_success_response({
                 "message": "Index doesn't exists"})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing get_index_request()")
     return response
 
@@ -46,9 +46,9 @@ def create_index_request(request):
             response = get_success_response({
                 "message": "Index exists"})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing create_index_request()")
     return response
 
@@ -73,9 +73,9 @@ def update_index_request(request):
             response = get_success_response({
                 "message": "Index exists"})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing update_index_request()")
     return response
 
@@ -94,9 +94,9 @@ def delete_index_request(request):
             response = get_success_response({
                 "message": "Index doesn't exists"})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing delete_index_request()")
     return response
 
@@ -117,9 +117,9 @@ def get_record_request(request):
             response = get_success_response({
                 "message": "Index doesn't exists"})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing get_record_request()")
     return response
 
@@ -143,9 +143,9 @@ def upsert_record_request(request):
             response = get_success_response({
                 "message": "Index doesn't exists"})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing upsert_record_request()")
     return response
 
@@ -171,9 +171,9 @@ def partial_update_record_request(request):
             response = get_success_response({
                 "message": "Index doesn't exists"})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing partial_update_record_request()")
     return response
 
@@ -195,8 +195,8 @@ def delete_record_request(request):
             response = get_success_response({
                 "message": "Index doesn't exists"})
     except ServiceException as e:
-        response = e.get_error_response()
+        response = get_error_response(e)
     except Exception:
-        response = ServiceException().get_error_response()
+        response = get_error_response(ServiceException())
     logger.info("Existing delete_record_request()")
     return response

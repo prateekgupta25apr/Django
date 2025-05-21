@@ -36,23 +36,6 @@ class ServiceException(BaseException):
 
         super().__init__(self.message)
 
-    def get_error_response(self, request=None):
-        """Method to return response for errors"""
-        # Logging error
-        log_error()
-
-        if request is not None:
-            logger.error("Error while responding the api : "+request.path)
-
-        response = dict()
-        if self.status_id is not None:
-            response["message"] = self.message
-            return get_api_response(response,self.status_id)
-        else:
-            response["message"] = self.message
-            return get_api_response(response,
-                                    ServiceException.ExceptionType.UNKNOWN_ERROR.value)
-
 
 def log_error():
     # Logging the exception
