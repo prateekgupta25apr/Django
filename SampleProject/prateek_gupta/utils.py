@@ -79,7 +79,7 @@ def request_mapping(method_name):
 
                 if request.method != method_name:
                     raise (ServiceException(
-                        ServiceException.METHOD_NOT_ALLOWED))
+                        ServiceException.ExceptionType.METHOD_NOT_ALLOWED))
 
                 if asyncio.iscoroutinefunction(view_name):
                     return await view_name(request, *args, **kwargs)

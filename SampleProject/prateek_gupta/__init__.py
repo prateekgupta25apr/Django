@@ -2,6 +2,8 @@ import asyncio
 import threading
 from pathlib import Path
 
+import javaproperties
+
 from prateek_gupta.utils import load_config_value
 from .project_settings import *
 
@@ -21,6 +23,11 @@ async def on_load():
     ))
 
     await load_config_task
+
+    # Loading exceptions
+    with open(project_dir+"prateek_gupta/ServiceExceptionMessages.properties", 'r') as file:
+        exception_messages = javaproperties.load(file)
+        configuration_properties["exception_messages"]=exception_messages
 
     enable_kafka = configuration_properties.get("KAFKA_ENABLE", None)
     if enable_kafka and enable_kafka == "S":

@@ -13,7 +13,8 @@ async def test(request):
     except ServiceException as e:
         response = e.get_error_response()
     except Exception:
-        response = (ServiceException(error_id=ServiceException.UNKNOWN_ERROR)
+        response = (ServiceException(
+            exception_type=ServiceException.ExceptionType.UNKNOWN_ERROR)
                     .get_error_response())
     logger.info("Exiting test()")
     return response

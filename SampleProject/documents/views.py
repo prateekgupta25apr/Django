@@ -12,6 +12,7 @@ from utils import get_success_response
 
 @request_mapping("GET")
 async def extract_urls(request):
+    # noinspection PyBroadException
     try:
         # Define data
         data = {"Col 1": ["Key1", "Key2"], "Col 2": ["Value1", "Value2"]}
@@ -38,7 +39,8 @@ async def extract_urls(request):
 
 
     except Exception:
-        response = (ServiceException(error_id=ServiceException.UNKNOWN_ERROR)
+        response = (ServiceException(
+            exception_type=ServiceException.ExceptionType.UNKNOWN_ERROR)
                     .get_error_response())
     return response
 
