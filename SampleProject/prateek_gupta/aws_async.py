@@ -26,7 +26,8 @@ async def get_s3_client():
                 async with session.client(
                         's3',
                         aws_access_key_id=configuration_properties['AWS_ACCESS_KEY_ID'],
-                        aws_secret_access_key=configuration_properties['AWS_SECRET_ACCESS_KEY'],
+                        aws_secret_access_key=
+                        configuration_properties['AWS_SECRET_ACCESS_KEY'],
                         region_name=configuration_properties['AWS_S3_REGION_NAME'],
                 ) as s3_client_obj:
                     s3_client = s3_client_obj
@@ -138,7 +139,7 @@ async def check_file_existence(file_key):
     return exists
 
 
-async def pre_signed_url(file_key):
+async def pre_signed_url(file_key,method:str=None):
     logger.info("Entering pre_signed_url()")
     bucket_name = get_bucket_name()
     if not bucket_name:
@@ -149,7 +150,10 @@ async def pre_signed_url(file_key):
         if s3_client is None:
             raise ServiceException(message="Couldn't establish a connection to AWS")
 
+        if not method:
+            method = "get"
+
         url = await s3_client.generate_presigned_url(
-            'get_object',Params={'Bucket': bucket_name, 'Key': file_key})
+            (method.lower()+'_object'),Params={'Bucket': bucket_name, 'Key': file_key})
     logger.info("Exiting pre_signed_url()")
     return url

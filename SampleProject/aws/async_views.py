@@ -63,10 +63,11 @@ async def delete_file(request):
 async def get_pre_signed_url(request):
     # noinspection PyBroadException
     try:
-        # Fetch the file from S3
-        file_key = request.GET.get('file_name')
 
-        url = await pre_signed_url(file_key)
+        file_key = request.GET.get('file_name')
+        method = request.GET.get('method', None)
+
+        url = await pre_signed_url(file_key, method)
         response=get_success_response({"message":"Generated pre-signed url successfully",
                      "Pre-Signed URL":url})
 

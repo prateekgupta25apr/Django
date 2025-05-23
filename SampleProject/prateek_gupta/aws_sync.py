@@ -134,7 +134,7 @@ def check_file_existence(file_key):
     return exists
 
 
-def pre_signed_url(file_key):
+def pre_signed_url(file_key,method:str=None):
     logger.info("Entering pre_signed_url()")
     bucket_name = get_bucket_name()
     if not bucket_name:
@@ -145,8 +145,10 @@ def pre_signed_url(file_key):
         raise ServiceException(
             message="Couldn't establish a connection to AWS")
 
+    if not method:
+        method="get"
     url = s3_client.generate_presigned_url(
-        'get_object',
+        (method.lower()+'_object'),
         Params={'Bucket': bucket_name, 'Key': file_key})
     logger.info("Exiting pre_signed_url()")
     return url
