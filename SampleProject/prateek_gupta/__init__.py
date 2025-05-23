@@ -25,7 +25,7 @@ async def on_load():
     await load_config_task
 
     # Loading exceptions
-    with open(project_dir+"prateek_gupta/ServiceExceptionMessages.properties", 'r') as file:
+    with open(project_dir+"ServiceExceptionMessages.properties", 'r') as file:
         exception_messages = javaproperties.load(file)
         configuration_properties["exception_messages"]=exception_messages
 
