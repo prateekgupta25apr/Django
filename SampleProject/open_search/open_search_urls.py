@@ -12,6 +12,10 @@ urlpatterns = [
     path('async/partial_update_record',
          open_search_async_views.partial_update_record_request),
     path('async/delete_record', open_search_async_views.delete_record_request),
+    path('async/search_record', open_search_async_views.search_record_request),
+    path('async/count_record', open_search_async_views.count_record_request),
+    path('async/delete_by_query_record',
+         open_search_async_views.delete_by_query_record_request),
 
 
     path('sync/get_index', open_search_sync_views.get_index_request),
@@ -22,5 +26,9 @@ urlpatterns = [
     path('sync/upsert_record', open_search_sync_views.upsert_record_request),
     path('sync/partial_update_record', open_search_sync_views.partial_update_record_request),
     path('sync/delete_record', open_search_sync_views.delete_record_request),
+    path('sync/search_record', open_search_sync_views.search_record_request),
+    path('sync/count_record', open_search_sync_views.count_record_request),
+    path('sync/delete_by_query_record',
+         open_search_sync_views.delete_by_query_record_request),
 
 ]

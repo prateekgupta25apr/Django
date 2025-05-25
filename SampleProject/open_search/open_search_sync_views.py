@@ -4,7 +4,8 @@ from prateek_gupta.LogManager import logger
 from prateek_gupta.exceptions import ServiceException
 from prateek_gupta.open_search_sync import (
     get_index, create_index, update_index, delete_index, get_record,
-    upsert_record, partial_update_record, delete_record)
+    upsert_record, partial_update_record, delete_record, search_record, count_record,
+    delete_by_query_record)
 from prateek_gupta.utils import request_mapping
 from utils import get_success_response, get_error_response
 
@@ -199,4 +200,76 @@ def delete_record_request(request):
     except Exception:
         response = get_error_response(ServiceException())
     logger.info("Existing delete_record_request()")
+    return response
+
+
+@request_mapping("POST")
+def search_record_request(request):
+    logger.info("Entering search_record_request()")
+    # noinspection PyBroadException
+    try:
+        index_name = request.POST.get("indexName")
+        search_json = request.POST.get("searchJSON")
+        response = search_record(index_name, search_json)
+        if response is not None:
+            response = get_success_response({
+                "message": "Index updated successfully",
+                "details": response
+            })
+        else:
+            response = get_success_response({
+                "message": "Index doesn't exists"})
+    except ServiceException as e:
+        response = get_error_response(e)
+    except Exception:
+        response = get_error_response(ServiceException())
+    logger.info("Existing search_record_request()")
+    return response
+
+
+@request_mapping("POST")
+def count_record_request(request):
+    logger.info("Entering count_record_request()")
+    # noinspection PyBroadException
+    try:
+        index_name = request.POST.get("indexName")
+        search_json = request.POST.get("searchJSON")
+        response = count_record(index_name, search_json)
+        if response is not None:
+            response = get_success_response({
+                "message": "Index updated successfully",
+                "details": response
+            })
+        else:
+            response = get_success_response({
+                "message": "Index doesn't exists"})
+    except ServiceException as e:
+        response = get_error_response(e)
+    except Exception:
+        response = get_error_response(ServiceException())
+    logger.info("Existing count_record_request()")
+    return response
+
+
+@request_mapping("POST")
+def delete_by_query_record_request(request):
+    logger.info("Entering delete_by_query_record_request()")
+    # noinspection PyBroadException
+    try:
+        index_name = request.POST.get("indexName")
+        search_json = request.POST.get("searchJSON")
+        response = delete_by_query_record(index_name, search_json)
+        if response is not None:
+            response = get_success_response({
+                "message": "Index updated successfully",
+                "details": response
+            })
+        else:
+            response = get_success_response({
+                "message": "Index doesn't exists"})
+    except ServiceException as e:
+        response = get_error_response(e)
+    except Exception:
+        response = get_error_response(ServiceException())
+    logger.info("Existing delete_by_query_record_request()")
     return response

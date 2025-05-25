@@ -1,7 +1,6 @@
 import json
 
 from opensearchpy import AsyncOpenSearch, NotFoundError
-from opensearchpy._async import helpers
 
 from prateek_gupta import configuration_properties
 
@@ -37,8 +36,8 @@ async def create_index(index_name, body):
     return response
 
 
-async def update_index(index_name, settings=None, add_alias=None,
-                       remove_alias=None, mappings=None):
+async def update_index(
+        index_name, settings=None, add_alias=None, remove_alias=None, mappings=None):
     result = {}
     client = await get_client()
 
@@ -46,7 +45,8 @@ async def update_index(index_name, settings=None, add_alias=None,
         response = None
 
         if settings:
-            response = await client.indices.put_settings(index=index_name, body=settings)
+            response = await client.indices.put_settings(
+                index=index_name, body=settings)
 
         if add_alias or remove_alias:
             actions = []
@@ -91,7 +91,8 @@ async def get_record(index_name, record_id):
     return response
 
 
-async def upsert_record(index_name, record_id, data, bulk=False):
+async def upsert_record(index_name, record_id, data,
+                        bulk=False):
     result = {}
     client = await get_client()
     if await client.indices.exists(index=index_name):
@@ -133,3 +134,21 @@ async def delete_record(index_name, record_id, bulk=False):
     else:
         result["message"] = "Index doesn't exist"
     return result
+
+
+async def search_record(index_name, search_json):
+    client = await get_client()
+    response = await client.search(index=index_name, body=json.loads(search_json))
+    return response
+
+
+async def count_record(index_name, search_json):
+    client = await get_client()
+    response = await client.count(index=index_name, body=json.loads(search_json))
+    return response
+
+
+async def delete_by_query_record(index_name, search_json):
+    client = await get_client()
+    response = await client.delete_by_query(index=index_name, body=json.loads(search_json))
+    return response

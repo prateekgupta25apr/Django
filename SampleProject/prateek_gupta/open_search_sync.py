@@ -152,3 +152,21 @@ def delete_record(index_name, record_id, bulk=False):
     else:
         result["message"] = "Index doesn't exist"
     return result
+
+
+def search_record(index_name, search_json):
+    client = get_client()
+    response = client.search(index=index_name, body=json.loads(search_json))
+    return response
+
+
+def count_record(index_name, search_json):
+    client = get_client()
+    response = client.count(index=index_name, body=json.loads(search_json))
+    return response
+
+
+def delete_by_query_record(index_name, search_json):
+    client = get_client()
+    response = client.delete_by_query(index=index_name, body=json.loads(search_json))
+    return response
