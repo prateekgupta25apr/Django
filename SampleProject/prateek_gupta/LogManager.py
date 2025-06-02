@@ -103,6 +103,7 @@ class LogFileHandler(logging.FileHandler):
 
 logger = LogFileLogger().logger
 
+
 def rotate_log_files(days_gap_for_file_rotation=30):
     logger.info("Log files rotation begins")
     # noinspection PyBroadException
