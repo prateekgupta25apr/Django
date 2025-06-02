@@ -102,3 +102,32 @@ class LogFileHandler(logging.FileHandler):
 
 
 logger = LogFileLogger().logger
+
+def rotate_log_files(days_gap_for_file_rotation=30):
+    logger.info("Log files rotation begins")
+    # noinspection PyBroadException
+    try:
+        log_files = get_log_files_details()
+        file_path = os.path.join(project_dir, main_log_folder_name)
+        if len(log_files) > 0:
+            # Sorting dates and looping them
+            for key in sorted(list(log_files.keys()),
+                              key=lambda x: datetime.strptime(x, '%Y-%m-%d')):
+                log_file_date = datetime.strptime(key, "%Y-%m-%d").date()
+                if ((datetime.now().date() - log_file_date).days >=
+                        int(days_gap_for_file_rotation)):
+                    for file_name in log_files.get(key):
+                        if os.path.exists(file_path + file_name):
+                            os.remove(file_path + file_name)
+
+                    del log_files[key]
+                    logger.info("Deleted log files dated : " + key)
+                else:
+                    break
+    except Exception as e:
+        logger.error("Error while rotating the log files")
+        from prateek_gupta.exceptions import log_error
+        log_error()
+        raise e
+
+    logger.info("Log files rotation ends")
