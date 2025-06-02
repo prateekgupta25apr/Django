@@ -37,7 +37,7 @@ def get_log_files_details():
     pattern = re.compile(r'^logs\.(\d{4}-\d{2}-\d{2})\.\d+\.log$')
 
     # Get list of all files in the directory
-    all_files = os.listdir(project_dir+main_log_folder_name)
+    all_files = os.listdir(project_dir + main_log_folder_name)
 
     # Filter files that match the specified pattern
     target_files = [file for file in all_files if pattern.match(file)]
@@ -51,11 +51,12 @@ def get_log_files_details():
 
     return log_files
 
+
 class LogFileHandler(logging.FileHandler):
-    def __init__(self,file_path, filemode="a"):
-        filename=os.path.join(file_path, main_log_file_name)
-        self.file_path=file_path
-        self.main_log_file=filename
+    def __init__(self, file_path, filemode="a"):
+        filename = os.path.join(file_path, main_log_file_name)
+        self.file_path = file_path
+        self.main_log_file = filename
         self.last_log_file_date = "1999-04-25"
         self.log_file_next_serial_number = 1
 
@@ -99,4 +100,5 @@ class LogFileHandler(logging.FileHandler):
         return ("logs." + datetime.now().strftime("%Y-%m-%d") + "." +
                 str(self.log_file_next_serial_number) + ".log")
 
-logger=LogFileLogger().logger
+
+logger = LogFileLogger().logger
