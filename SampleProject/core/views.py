@@ -1,7 +1,8 @@
+from prateek_gupta import configuration_properties
 from prateek_gupta.LogManager import logger, rotate_log_files
 from prateek_gupta.exceptions import ServiceException
 from prateek_gupta.utils import execute_query, request_mapping
-from utils import get_error_response, get_success_response
+from utils import get_error_response, get_success_response, get_api_response
 
 
 @request_mapping('GET')
@@ -24,6 +25,23 @@ async def test(request):
     logger.info("Exiting test()")
     return response
 
+@request_mapping('GET')
+async def health_check(request):
+    logger.info("Entering " +
+                request.path.replace(f"/{configuration_properties.get('context_path','')}/", "")
+                + "()")
+    # noinspection PyBroadException
+    try:
+        query="SELECT DATABASE();"
+
+        result=await execute_query(query,'fetchone')
+        logger.info("Health check for schema : "+str(result))
+
+        response=get_success_response({"message":'Healthy'})
+    except Exception:
+        response= get_api_response({"message":'Unhealthy'},500)
+    logger.info("Exiting health_check()")
+    return response
 
 @request_mapping('POST')
 async def rotate_log_files_request(request):
