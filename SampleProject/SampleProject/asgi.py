@@ -11,7 +11,7 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-from prateek_gupta import on_load
+from core.views import load_config_value_from_db
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'SampleProject.settings')
 
@@ -23,8 +23,8 @@ class ASGiApplication:
 
 
     async def __call__(self, scope, receive, send):
-        # if scope['type'] == 'lifespan':
-        #     await on_load()
+        if scope['type'] == 'lifespan':
+            await load_config_value_from_db()
         await self.app(scope, receive, send)
 
 

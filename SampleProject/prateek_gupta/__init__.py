@@ -4,7 +4,7 @@ from pathlib import Path
 
 import javaproperties
 
-from prateek_gupta.utils import load_config_value
+from prateek_gupta.utils import load_config_value_from_file
 from .project_settings import *
 
 project_dir = str(Path(__file__).resolve().parent.parent).replace("\\", "/")
@@ -15,7 +15,7 @@ configuration_properties = dict()
 
 
 async def on_load():
-    load_config_task = asyncio.create_task(load_config_value(
+    load_config_task = asyncio.create_task(load_config_value_from_file(
         configuration_properties_file_path,
         configuration_properties,
         required_fields,

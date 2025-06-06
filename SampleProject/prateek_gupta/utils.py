@@ -8,7 +8,7 @@ import jwt
 from asgiref.sync import sync_to_async
 from django.db import connections, transaction
 
-from utils import get_success_response
+from utils import get_success_response, get_error_response
 import mysql.connector
 
 
@@ -35,9 +35,8 @@ def process_cookie(decode, secret_key, cookie="",
     return result
 
 
-async def load_config_value(file_path, config_properties,
-                            required_fields,
-                            expected_fields):
+async def load_config_value_from_file(
+        file_path, config_properties, required_fields, expected_fields):
     # noinspection PyBroadException
     try:
         missing_fields = list()
