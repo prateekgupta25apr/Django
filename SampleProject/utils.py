@@ -14,9 +14,11 @@ def get_api_response(body,status):
     except Exception as e:
         print(str(e))
 
+
 def get_success_response(body):
     """Method to return generic JSON response for an API"""
     return get_api_response(body,200)
+
 
 def get_error_response(exception, request=None):
     """Method to return response for errors"""
