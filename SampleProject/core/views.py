@@ -65,6 +65,11 @@ async def rotate_log_files_request(request):
 
 @request_mapping('GET')
 async def load_config_values(request):
+    """
+    The idea for this api is to reload only the configs and not to recreate the beans,
+    if configs are updated such that beans need to be created then it's better to restart
+    the service.
+    """
     logger.info(
         "Entering " +
         request.path.replace(f"/{configuration_properties.get('context_path', '')}/", "")
@@ -72,7 +77,7 @@ async def load_config_values(request):
     # noinspection PyBroadException
     try:
         await load_config_value_from_db()
-        await on_load()
+        await on_load(reload=True)
         response = get_success_response({"message": 'Successfully loaded the config values'})
     except ServiceException as e:
         response = get_error_response(e)
