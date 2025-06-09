@@ -4,6 +4,7 @@ from confluent_kafka.cimpl import NewTopic, NewPartitions, TopicPartition
 
 from prateek_gupta.LogManager import logger
 
+global_consumer = None
 
 def get_consumer(topics=None, group_id=None):
     from prateek_gupta import configuration_properties
@@ -75,10 +76,11 @@ def get_admin_client():
 
 def setup_sync_kafka(topics):
     logger.info("Setting up sync kafka")
-    consumer = get_consumer(topics=topics)
+    global global_consumer
+    global_consumer = get_consumer(topics=topics)
 
-    while True:
-        msg = consumer.poll(timeout=1.0)
+    while global_consumer is not None:
+        msg = global_consumer.poll(timeout=1.0)
         if msg is None:
             continue
         if msg.error():
@@ -161,7 +163,8 @@ def create_topic(topic_name, partitions, replication_factor):
             raise e
 
 
-def update_topic_increase_partition(topic_name, new_partition_count):
+def update_topic_increase_partition(
+        topic_name, new_partition_count):
     admin_client = get_admin_client()
 
     # Increase partitions

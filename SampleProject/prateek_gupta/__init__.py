@@ -1,8 +1,11 @@
 import asyncio
 import threading
 from pathlib import Path
+from typing import Optional
 
 import javaproperties
+from aiokafka import AIOKafkaConsumer
+from confluent_kafka import Consumer
 
 from prateek_gupta.utils import load_config_value_from_file
 from .project_settings import *
@@ -28,6 +31,16 @@ async def on_load():
     with open(project_dir+"ServiceExceptionMessages.properties", 'r') as file:
         exception_messages = javaproperties.load(file)
         configuration_properties["exception_messages"]=exception_messages
+
+    # Resetting Kafka consumers
+    from .kafka_sync import global_consumer
+    global_consumer: Optional[Consumer]=None
+
+    from .kafka_async import global_consumer
+    if global_consumer is not None:
+        global_consumer: Optional[AIOKafkaConsumer]=global_consumer
+        await global_consumer.stop()
+        global_consumer=None
 
     enable_kafka = configuration_properties.get("KAFKA_ENABLE", None)
     if enable_kafka and enable_kafka == "S":

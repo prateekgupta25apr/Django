@@ -6,6 +6,7 @@ from aiokafka.structs import RecordMetadata, TopicPartition
 
 from prateek_gupta.LogManager import logger
 
+global_consumer=None
 
 def get_consumer(topics=None, group_id=None):
     from prateek_gupta import configuration_properties
@@ -68,13 +69,16 @@ async def setup_async_kafka(topics):
     # To log only warnings n errors from aiokafka
     logging.getLogger("aiokafka").setLevel(logging.WARNING)
 
-    consumer = get_consumer(topics)
-    await consumer.start()
+    global global_consumer
+    global_consumer = get_consumer(topics=topics)
+    await global_consumer.start()
     try:
-        async for msg in consumer:
+        async for msg in global_consumer:
+            if global_consumer is None:
+                break
             logger.info(f"Received: {msg.value.decode()} from offset {msg.offset}")
     finally:
-        await consumer.stop()
+        await global_consumer.stop()
 
 
 async def send(topic, message: str):
@@ -141,7 +145,8 @@ async def get_topic(topic_name):
 # Deleting a topic
 
 
-async def get_committed_offset(topic_name, partition_id, group_id):
+async def get_committed_offset(
+        topic_name, partition_id, group_id):
     consumer = get_consumer(topics=[topic_name], group_id=group_id)
     await consumer.start()
     try:
