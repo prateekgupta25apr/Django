@@ -14,7 +14,8 @@ configuration_properties = dict()
 pre_construct_method_dict = {}
 def pre_construct_method(*args, **kwargs):
     def pre_construct_method_args(function_name):
-        pre_construct_method_dict[function_name] = {"args": args, "kwargs": kwargs}
+        pre_construct_method_dict[function_name.__name__] = {
+            "function":function_name,"args": args, "kwargs": kwargs}
         return function_name
     return pre_construct_method_args
 
@@ -22,7 +23,8 @@ def pre_construct_method(*args, **kwargs):
 post_construct_method_dict = {}
 def post_construct_method(*args, **kwargs):
     def post_construct_method_args(function_name):
-        post_construct_method_dict[function_name] = {"args": args, "kwargs": kwargs}
+        post_construct_method_dict[function_name.__name__] = {
+            "function": function_name, "args": args, "kwargs": kwargs}
         return function_name
     return post_construct_method_args
 
@@ -45,9 +47,6 @@ async def load_exception_messages():
         [],
         True
     )
-
-
-
 
 async def import_modules():
     if not scanned_files:
@@ -75,19 +74,19 @@ async def pre_construct_method_execution():
     await import_modules()
     print("PreConstructMethods : ", pre_construct_method_dict)
 
-    for function_name, arguments in pre_construct_method_dict.items():
-        if asyncio.iscoroutinefunction(function_name):
-            await function_name(*arguments.get("args", []), **arguments.get("kwargs", {}))
+    for function_name, details in pre_construct_method_dict.items():
+        if asyncio.iscoroutinefunction(details.get("function")):
+            await details.get("function")(*details.get("args", []), **details.get("kwargs", {}))
         else:
-            function_name(*arguments.get("args", []), **arguments.get("kwargs", {}))
+            details.get("function")(*details.get("args", []), **details.get("kwargs", {}))
 
 
 async def post_construct_method_execution():
     print("PostConstructMethods : ", post_construct_method_dict)
 
-    for function_name, arguments in post_construct_method_dict.items():
-        if asyncio.iscoroutinefunction(function_name):
-            await function_name(*arguments.get("args", []), **arguments.get("kwargs", {}))
+    for function_name, details in post_construct_method_dict.items():
+        if asyncio.iscoroutinefunction(details.get("function")):
+            await details.get("function")(*details.get("args", []), **details.get("kwargs", {}))
         else:
-            function_name(*arguments.get("args", []), **arguments.get("kwargs", {}))
+            details.get("function")(*details.get("args", []), **details.get("kwargs", {}))
 

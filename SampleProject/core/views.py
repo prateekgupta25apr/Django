@@ -84,7 +84,7 @@ async def load_config_values(request):
         response = get_success_response({"message": 'Successfully loaded the config values'})
     except ServiceException as e:
         response = get_error_response(e)
-    except Exception as e:
+    except Exception:
         response = get_error_response(ServiceException(
             exception_type=ServiceException.ExceptionType.UNKNOWN_ERROR))
     logger.info("Exiting test()")
