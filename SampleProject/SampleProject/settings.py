@@ -18,11 +18,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Loading the config values
 import asyncio
 import threading
-from prateek_gupta import configuration_properties, on_load
+import prateek_gupta
 
 thread = threading.Thread(
     target=asyncio.run,
-    args=(on_load(),)
+    args=(prateek_gupta.pre_construct_method_execution(),)
 )
 thread.start()
 thread.join()
@@ -95,13 +95,14 @@ WSGI_APPLICATION = 'SampleProject.wsgi.application'
 #     }
 # }
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': configuration_properties['db_default_schema'],
-        'USER': configuration_properties['db_user_name'],
-        'PASSWORD': configuration_properties['db_password'],
-        'HOST': configuration_properties['db_host'],
+        'NAME': prateek_gupta.configuration_properties['db_default_schema'],
+        'USER': prateek_gupta.configuration_properties['db_user_name'],
+        'PASSWORD':prateek_gupta. configuration_properties['db_password'],
+        'HOST': prateek_gupta.configuration_properties['db_host'],
         'PORT': '3306',
     }
 }

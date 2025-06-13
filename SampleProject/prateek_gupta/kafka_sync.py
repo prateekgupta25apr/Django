@@ -2,6 +2,7 @@ from confluent_kafka import Consumer, Producer, ConsumerGroupTopicPartitions
 from confluent_kafka.admin import AdminClient, ConfigResource
 from confluent_kafka.cimpl import NewTopic, NewPartitions, TopicPartition
 
+from prateek_gupta import pre_construct_method
 from prateek_gupta.LogManager import logger
 
 global_consumer = None
@@ -74,20 +75,25 @@ def get_admin_client():
     return AdminClient(config)
 
 
+@pre_construct_method(["test"])
 def setup_sync_kafka(topics):
-    logger.info("Setting up sync kafka")
-    global global_consumer
-    global_consumer = get_consumer(topics=topics)
+    print("TESTING :: SYNC Kafka")
+    from prateek_gupta import configuration_properties
+    enable_kafka = configuration_properties.get("KAFKA_ENABLE", None)
+    if enable_kafka and enable_kafka=="S":
+        logger.info("Setting up sync kafka")
+        global global_consumer
+        global_consumer = get_consumer(topics=topics)
 
-    while global_consumer is not None:
-        msg = global_consumer.poll(timeout=1.0)
-        if msg is None:
-            continue
-        if msg.error():
-            logger.error(msg.error())
-            continue
-        # noinspection PyArgumentList
-        logger.info(f"Received message: {msg.value()}")
+        while global_consumer is not None:
+            msg = global_consumer.poll(timeout=1.0)
+            if msg is None:
+                continue
+            if msg.error():
+                logger.error(msg.error())
+                continue
+            # noinspection PyArgumentList
+            logger.info(f"Received message: {msg.value()}")
 
 
 def send(topic, message):

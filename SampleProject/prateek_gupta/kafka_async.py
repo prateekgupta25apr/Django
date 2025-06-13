@@ -4,6 +4,7 @@ import ssl
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from aiokafka.structs import RecordMetadata, TopicPartition
 
+from prateek_gupta import pre_construct_method
 from prateek_gupta.LogManager import logger
 
 global_consumer=None
@@ -63,22 +64,29 @@ def get_producer():
     return AIOKafkaProducer(**config)
 
 
+@pre_construct_method(["test"])
 async def setup_async_kafka(topics):
-    logger.info("Setting up async kafka")
+    print("TESTING :: ASYNC Kafka")
+    from prateek_gupta import configuration_properties,project_dir
+    enable_kafka = configuration_properties.get("KAFKA_ENABLE", None)
+    configuration_properties["KAFKA_AWS_CA_FILE_PATH"] = (
+            project_dir + "AmazonRootCA1.pem")
+    if enable_kafka and enable_kafka == "A":
+        logger.info("Setting up async kafka")
 
-    # To log only warnings n errors from aiokafka
-    logging.getLogger("aiokafka").setLevel(logging.WARNING)
+        # To log only warnings n errors from aiokafka
+        logging.getLogger("aiokafka").setLevel(logging.WARNING)
 
-    global global_consumer
-    global_consumer = get_consumer(topics=topics)
-    await global_consumer.start()
-    try:
-        async for msg in global_consumer:
-            if global_consumer is None:
-                break
-            logger.info(f"Received: {msg.value.decode()} from offset {msg.offset}")
-    finally:
-        await global_consumer.stop()
+        global global_consumer
+        global_consumer = get_consumer(topics=topics)
+        await global_consumer.start()
+        try:
+            async for msg in global_consumer:
+                if global_consumer is None:
+                    break
+                logger.info(f"Received: {msg.value.decode()} from offset {msg.offset}")
+        finally:
+            await global_consumer.stop()
 
 
 async def send(topic, message: str):

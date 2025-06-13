@@ -1,10 +1,7 @@
 import asyncio
-import threading
 from pathlib import Path
 
-import javaproperties
-
-from prateek_gupta.utils import load_config_value_from_file
+from prateek_gupta.utils import (load_properties_from_file)
 from .project_settings import *
 
 project_dir = str(Path(__file__).resolve().parent.parent).replace("\\", "/")
@@ -14,31 +11,83 @@ if project_dir[-1] != "/":
 configuration_properties = dict()
 
 
-async def on_load(reload=False):
-    load_config_task = asyncio.create_task(load_config_value_from_file(
+pre_construct_method_dict = {}
+def pre_construct_method(*args, **kwargs):
+    def pre_construct_method_args(function_name):
+        pre_construct_method_dict[function_name] = {"args": args, "kwargs": kwargs}
+        return function_name
+    return pre_construct_method_args
+
+
+post_construct_method_dict = {}
+def post_construct_method(*args, **kwargs):
+    def post_construct_method_args(function_name):
+        post_construct_method_dict[function_name] = {"args": args, "kwargs": kwargs}
+        return function_name
+    return post_construct_method_args
+
+
+@pre_construct_method()
+async def load_config_properties_fom_file():
+    global configuration_properties
+    configuration_properties=await load_properties_from_file(
         configuration_properties_file_path,
-        configuration_properties,
         required_fields,
-        expected_fields
-    ))
+        expected_fields,False
+    )
 
-    await load_config_task
 
-    # Loading exceptions
-    with open(project_dir+"ServiceExceptionMessages.properties", 'r') as file:
-        exception_messages = javaproperties.load(file)
-        configuration_properties["exception_messages"]=exception_messages
+@pre_construct_method()
+async def load_exception_messages():
+    configuration_properties["exception_messages"]=await load_properties_from_file(
+        project_dir + "ServiceExceptionMessages.properties",
+        [],
+        [],
+        True
+    )
 
-    if not reload:
-        enable_kafka = configuration_properties.get("KAFKA_ENABLE", None)
-        if enable_kafka and enable_kafka == "S":
-            # Setting up sync kafka in a separate thread
-            from .kafka_sync import setup_sync_kafka
-            consumer_thread = threading.Thread(target=setup_sync_kafka, daemon=True,
-                                               args=(["test"],))
-            consumer_thread.start()
-        elif enable_kafka and enable_kafka == "A":
-            configuration_properties["KAFKA_AWS_CA_FILE_PATH"] = (
-                    project_dir + "AmazonRootCA1.pem")
-            from .kafka_async import setup_async_kafka
-            asyncio.create_task(setup_async_kafka(["test"]))
+
+
+
+async def import_modules():
+    if not scanned_files:
+        import os
+        for root, dirs, files in os.walk(project_dir):
+            for file in files:
+                if file.endswith(".py") and "views" in file and not file.startswith("__"):
+                    module_name = ((root + "/" + file)
+                                   .replace(project_dir, "")
+                                   .replace("/", ".")
+                                   .replace(".py", ""))
+                    scanned_files.append(module_name)
+
+    for module_name in scanned_files:
+        # noinspection PyBroadException
+        try:
+            import importlib
+            importlib.import_module(module_name)
+        except Exception:
+            from exceptions import log_error
+            log_error()
+
+
+async def pre_construct_method_execution():
+    await import_modules()
+    print("PreConstructMethods : ", pre_construct_method_dict)
+
+    for function_name, arguments in pre_construct_method_dict.items():
+        if asyncio.iscoroutinefunction(function_name):
+            await function_name(*arguments.get("args", []), **arguments.get("kwargs", {}))
+        else:
+            function_name(*arguments.get("args", []), **arguments.get("kwargs", {}))
+
+
+async def post_construct_method_execution():
+    print("PostConstructMethods : ", post_construct_method_dict)
+
+    for function_name, arguments in post_construct_method_dict.items():
+        if asyncio.iscoroutinefunction(function_name):
+            await function_name(*arguments.get("args", []), **arguments.get("kwargs", {}))
+        else:
+            function_name(*arguments.get("args", []), **arguments.get("kwargs", {}))
+

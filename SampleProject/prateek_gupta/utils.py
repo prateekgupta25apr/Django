@@ -35,8 +35,9 @@ def process_cookie(decode, secret_key, cookie="",
     return result
 
 
-async def load_config_value_from_file(
-        file_path, config_properties, required_fields, expected_fields):
+async def load_properties_from_file(
+        file_path, required_fields, expected_fields,fetch_all):
+    properties_holder=dict()
     # noinspection PyBroadException
     try:
         missing_fields = list()
@@ -48,23 +49,29 @@ async def load_config_value_from_file(
         with open(file_path, 'r') as file:
             properties = javaproperties.load(file)
 
-        for field in required_fields:
-            config_properties[field] = properties.get(field, '')
-            if not config_properties[field]:
-                missing_fields.append(field)
+        if fetch_all:
+            for field in properties.keys():
+                properties_holder[field] = properties.get(field, '')
+        else:
+            for field in required_fields:
+                properties_holder[field] = properties.get(field, '')
+                if not properties_holder[field]:
+                    missing_fields.append(field)
 
-        if missing_fields:
-            raise ValueError(
-                (f"{'These' if len(missing_fields) > 1 else 'This'} properties are missing: "
-                 f"{', '.join(missing_fields)}.")
-            )
+            if missing_fields:
+                raise ValueError(
+                    (f"{'These' if len(missing_fields) > 1 else 'This'} "
+                     f"properties are missing: {', '.join(missing_fields)}.")
+                )
 
-        for field in expected_fields:
-            config_properties[field] = properties.get(field, "")
+            for field in expected_fields:
+                properties_holder[field] = properties.get(field, "")
 
     except Exception as e:
         print(e)
         sys.exit(0)
+
+    return properties_holder
 
 
 def request_mapping(method_name):
