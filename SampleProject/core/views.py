@@ -1,3 +1,5 @@
+from django.shortcuts import render
+
 from prateek_gupta import post_construct_method
 from prateek_gupta.LogManager import logger, rotate_log_files
 from prateek_gupta.exceptions import ServiceException
@@ -97,3 +99,19 @@ async def load_config_value_from_db():
     result = await execute_query("select `key`,value from configurations;", "fetchall")
     for row in result:
         configuration_properties[row[0]] = row[1]
+
+
+@request_mapping('GET')
+async def render_html(request):
+    from prateek_gupta import configuration_properties
+    logger.info("Entering render_html()")
+    # noinspection PyBroadException
+    try:
+        return render(request, 'SampleHtml.html')
+    except ServiceException as e:
+        response = get_error_response(e)
+    except Exception:
+        response = get_error_response(ServiceException(
+            exception_type=ServiceException.ExceptionType.UNKNOWN_ERROR))
+    logger.info("Exiting render_html()")
+    return response
