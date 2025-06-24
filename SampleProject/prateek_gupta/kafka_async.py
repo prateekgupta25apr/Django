@@ -7,7 +7,8 @@ from aiokafka.structs import RecordMetadata, TopicPartition
 from prateek_gupta import pre_construct_method
 from prateek_gupta.LogManager import logger
 
-global_consumer=None
+global_consumer = None
+
 
 def get_consumer(topics=None, group_id=None):
     from prateek_gupta import configuration_properties
@@ -64,10 +65,8 @@ def get_producer():
     return AIOKafkaProducer(**config)
 
 
-@pre_construct_method(["test"])
 async def setup_async_kafka(topics):
-    print("TESTING :: ASYNC Kafka")
-    from prateek_gupta import configuration_properties,project_dir
+    from prateek_gupta import configuration_properties, project_dir
     enable_kafka = configuration_properties.get("KAFKA_ENABLE", None)
     configuration_properties["KAFKA_AWS_CA_FILE_PATH"] = (
             project_dir + "AmazonRootCA1.pem")
@@ -81,12 +80,24 @@ async def setup_async_kafka(topics):
         global_consumer = get_consumer(topics=topics)
         await global_consumer.start()
         try:
+            logger.info("Setting up async kafka completed")
             async for msg in global_consumer:
                 if global_consumer is None:
                     break
                 logger.info(f"Received: {msg.value.decode()} from offset {msg.offset}")
         finally:
             await global_consumer.stop()
+
+
+@pre_construct_method(["test"])
+async def setup_async_kafka_caller(topics):
+    import threading
+    import asyncio
+    thread = threading.Thread(
+        target=asyncio.run,
+        args=(setup_async_kafka(topics),)
+    )
+    thread.start()
 
 
 async def send(topic, message: str):

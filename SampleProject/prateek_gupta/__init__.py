@@ -10,43 +10,49 @@ if project_dir[-1] != "/":
 
 configuration_properties = dict()
 
-
 pre_construct_method_dict = {}
+
+
 def pre_construct_method(*args, **kwargs):
     def pre_construct_method_args(function_name):
         pre_construct_method_dict[function_name.__name__] = {
-            "function":function_name,"args": args, "kwargs": kwargs}
+            "function": function_name, "args": args, "kwargs": kwargs}
         return function_name
+
     return pre_construct_method_args
 
 
 post_construct_method_dict = {}
+
+
 def post_construct_method(*args, **kwargs):
     def post_construct_method_args(function_name):
         post_construct_method_dict[function_name.__name__] = {
             "function": function_name, "args": args, "kwargs": kwargs}
         return function_name
+
     return post_construct_method_args
 
 
 @pre_construct_method()
 async def load_config_properties_fom_file():
     global configuration_properties
-    configuration_properties=await load_properties_from_file(
+    configuration_properties = await load_properties_from_file(
         configuration_properties_file_path,
         required_fields,
-        expected_fields,False
+        expected_fields, False
     )
 
 
 @pre_construct_method()
 async def load_exception_messages():
-    configuration_properties["exception_messages"]=await load_properties_from_file(
+    configuration_properties["exception_messages"] = await load_properties_from_file(
         project_dir + "ServiceExceptionMessages.properties",
         [],
         [],
         True
     )
+
 
 async def import_modules():
     if not scanned_files:
@@ -76,7 +82,8 @@ async def pre_construct_method_execution():
 
     for function_name, details in pre_construct_method_dict.items():
         if asyncio.iscoroutinefunction(details.get("function")):
-            await details.get("function")(*details.get("args", []), **details.get("kwargs", {}))
+            await details.get("function")(*details.get("args", []),
+                                          **details.get("kwargs", {}))
         else:
             details.get("function")(*details.get("args", []), **details.get("kwargs", {}))
 
@@ -86,7 +93,7 @@ async def post_construct_method_execution():
 
     for function_name, details in post_construct_method_dict.items():
         if asyncio.iscoroutinefunction(details.get("function")):
-            await details.get("function")(*details.get("args", []), **details.get("kwargs", {}))
+            await details.get("function")(*details.get("args", []),
+                                          **details.get("kwargs", {}))
         else:
             details.get("function")(*details.get("args", []), **details.get("kwargs", {}))
-

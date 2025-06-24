@@ -7,6 +7,7 @@ from prateek_gupta.LogManager import logger
 
 global_consumer = None
 
+
 def get_consumer(topics=None, group_id=None):
     from prateek_gupta import configuration_properties
     config = {
@@ -75,16 +76,15 @@ def get_admin_client():
     return AdminClient(config)
 
 
-@pre_construct_method(["test"])
 def setup_sync_kafka(topics):
-    print("TESTING :: SYNC Kafka")
     from prateek_gupta import configuration_properties
     enable_kafka = configuration_properties.get("KAFKA_ENABLE", None)
-    if enable_kafka and enable_kafka=="S":
+    if enable_kafka and enable_kafka == "S":
         logger.info("Setting up sync kafka")
         global global_consumer
         global_consumer = get_consumer(topics=topics)
 
+        logger.info("Setting up sync kafka completed")
         while global_consumer is not None:
             msg = global_consumer.poll(timeout=1.0)
             if msg is None:
@@ -94,6 +94,16 @@ def setup_sync_kafka(topics):
                 continue
             # noinspection PyArgumentList
             logger.info(f"Received message: {msg.value()}")
+
+
+@pre_construct_method(["test"])
+def setup_sync_kafka_caller(topics):
+    import threading
+    thread = threading.Thread(
+        target=setup_sync_kafka,
+        args=(topics,)
+    )
+    thread.start()
 
 
 def send(topic, message):
@@ -249,8 +259,8 @@ def get_messages(payload: dict):
     consumer.assign(partitions)
 
     partition_message_mapping = {}
-    empty_poll_count=0
-    max_empty_poll_count=5
+    empty_poll_count = 0
+    max_empty_poll_count = 5
     while True:
         if not partition_limit:
             break
