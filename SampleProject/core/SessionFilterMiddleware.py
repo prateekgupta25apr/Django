@@ -67,9 +67,11 @@ class Context:
     def __init__(self,request):
         # noinspection PyBroadException
         try:
+            self.user_id=0
             cookie = request.COOKIES.get(COOKIE_NAME, "")
             if not any(x in request.build_absolute_uri() for x in ['no-auth']):
-                process_cookie(True,COOKIE_SECRET,cookie=cookie)
+                cookie_data=process_cookie(True,COOKIE_SECRET,cookie=cookie)
+                self.user_id=cookie_data.get("userId",0)
         except Exception:
             log_error()
         super().__init__()

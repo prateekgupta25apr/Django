@@ -17,7 +17,8 @@ async def test(request):
         data = dict()
         data["test_data"] = test_data
         data["schema_db"] = result[0]
-        data["schema_name"] = request.tenant_context.schema_name
+        data["tenant_schema_name"] = request.tenant_context.schema_name
+        data["context_user_id"] = request.context.user_id
         from prateek_gupta import configuration_properties
         data["configuration_properties"] = configuration_properties
         response = get_success_response({"data": data})
