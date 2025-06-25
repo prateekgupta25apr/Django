@@ -147,7 +147,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 COOKIE_NAME = "pg"
-COOKIE_SECRET = "pg"
+COOKIE_SECRET = "Pg25Pg25Pg25Pg25Pg25Pg25Pg25Pg25Pg25Pg25Pg25Pg25Pg25Pg25Pg25Pg25"
 
 from prateek_gupta.UvicornLogs import uvicorn_logs_config
 
