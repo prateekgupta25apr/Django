@@ -107,7 +107,9 @@ async def render_html(request):
     logger.info("Entering render_html()")
     # noinspection PyBroadException
     try:
-        return render(request, 'SampleHtml.html')
+        return render(request, 'SampleHtml.html',{
+            "variable_data":"PG"
+        })
     except ServiceException as e:
         response = get_error_response(e)
     except Exception:
