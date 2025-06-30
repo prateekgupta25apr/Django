@@ -8,6 +8,8 @@ project_dir = str(Path(__file__).resolve().parent.parent).replace("\\", "/")
 if project_dir[-1] != "/":
     project_dir += "/"
 
+module_lock_message="Module is disabled,please contact admin"
+
 configuration_properties = dict()
 
 pre_construct_method_dict = {}

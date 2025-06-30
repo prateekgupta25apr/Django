@@ -7,7 +7,7 @@ from prateek_gupta.open_search_async import (
     upsert_record, partial_update_record, delete_record, search_record, count_record,
     delete_by_query_record)
 from prateek_gupta.utils import request_mapping
-from utils import get_success_response, get_error_response
+from utils import get_success_response, get_error_response, get_api_response
 
 
 @request_mapping("GET")
@@ -15,15 +15,20 @@ async def get_index_request(request):
     logger.info("Entering get_index_request()")
     # noinspection PyBroadException
     try:
-        index_name = request.GET.get("indexName")
-        response = await get_index(index_name)
-        if response is not None:
-            response = get_success_response({
-                "message": "Index details fetched successfully",
-                "details": response})
+        from prateek_gupta import configuration_properties, module_lock_message
+        enable_open_search = configuration_properties.get("OPEN_SEARCH_ENABLE", None)
+        if enable_open_search and enable_open_search == "A":
+            index_name = request.GET.get("indexName")
+            response = await get_index(index_name)
+            if response is not None:
+                response = get_success_response({
+                    "message": "Index details fetched successfully",
+                    "details": response})
+            else:
+                response = get_success_response({
+                    "message": "Index doesn't exists"})
         else:
-            response = get_success_response({
-                "message": "Index doesn't exists"})
+            response=get_api_response({"message":module_lock_message},403)
     except ServiceException as e:
         response = get_error_response(e)
     except Exception:
@@ -37,15 +42,20 @@ async def create_index_request(request):
     logger.info("Entering create_index_request()")
     # noinspection PyBroadException
     try:
-        index_name = request.POST.get("indexName")
-        body = request.POST.get("source")
-        response = await create_index(index_name, body)
-        if response is not None:
-            response = get_success_response({
-                "message": "Index created successfully"})
+        from prateek_gupta import configuration_properties, module_lock_message
+        enable_open_search = configuration_properties.get("OPEN_SEARCH_ENABLE", None)
+        if enable_open_search and enable_open_search == "A":
+            index_name = request.POST.get("indexName")
+            body = request.POST.get("source")
+            response = await create_index(index_name, body)
+            if response is not None:
+                response = get_success_response({
+                    "message": "Index created successfully"})
+            else:
+                response = get_success_response({
+                    "message": "Index exists"})
         else:
-            response = get_success_response({
-                "message": "Index exists"})
+            response=get_api_response({"message":module_lock_message},403)
     except ServiceException as e:
         response = get_error_response(e)
     except Exception:
@@ -59,21 +69,26 @@ async def update_index_request(request):
     logger.info("Entering update_index_request()")
     # noinspection PyBroadException
     try:
-        parser = MultiPartParser(request.META, request, request.upload_handlers)
-        payload, _ = parser.parse()
-        index_name = payload.get("indexName")
-        settings = payload.get("settings", None)
-        mappings = payload.get("mappings", None)
-        remove_alias = payload.get("removeAlias", None)
-        add_alias = payload.get("addAlias", None)
-        response = await update_index(index_name, settings, add_alias,
-                                      remove_alias, mappings)
-        if response is not None:
-            response = get_success_response({
-                "message": "Index updated successfully"})
+        from prateek_gupta import configuration_properties, module_lock_message
+        enable_open_search = configuration_properties.get("OPEN_SEARCH_ENABLE", None)
+        if enable_open_search and enable_open_search == "A":
+            parser = MultiPartParser(request.META, request, request.upload_handlers)
+            payload, _ = parser.parse()
+            index_name = payload.get("indexName")
+            settings = payload.get("settings", None)
+            mappings = payload.get("mappings", None)
+            remove_alias = payload.get("removeAlias", None)
+            add_alias = payload.get("addAlias", None)
+            response = await update_index(index_name, settings, add_alias,
+                                          remove_alias, mappings)
+            if response is not None:
+                response = get_success_response({
+                    "message": "Index updated successfully"})
+            else:
+                response = get_success_response({
+                    "message": "Index exists"})
         else:
-            response = get_success_response({
-                "message": "Index exists"})
+            response=get_api_response({"message":module_lock_message},403)
     except ServiceException as e:
         response = get_error_response(e)
     except Exception:
@@ -87,14 +102,19 @@ async def delete_index_request(request):
     logger.info("Entering delete_index_request()")
     # noinspection PyBroadException
     try:
-        index_name = request.GET.get("indexName")
-        response = await delete_index(index_name)
-        if response is not None:
-            response = get_success_response({
-                "message": "Index deleted successfully"})
+        from prateek_gupta import configuration_properties, module_lock_message
+        enable_open_search = configuration_properties.get("OPEN_SEARCH_ENABLE", None)
+        if enable_open_search and enable_open_search == "A":
+            index_name = request.GET.get("indexName")
+            response = await delete_index(index_name)
+            if response is not None:
+                response = get_success_response({
+                    "message": "Index deleted successfully"})
+            else:
+                response = get_success_response({
+                    "message": "Index doesn't exists"})
         else:
-            response = get_success_response({
-                "message": "Index doesn't exists"})
+            response=get_api_response({"message":module_lock_message},403)
     except ServiceException as e:
         response = get_error_response(e)
     except Exception:
@@ -108,16 +128,22 @@ async def get_record_request(request):
     logger.info("Entering get_record_request()")
     # noinspection PyBroadException
     try:
-        index_name = request.GET.get("indexName")
-        record_id = request.GET.get("docId")
-        response = await get_record(index_name, record_id)
-        if response is not None:
-            response = get_success_response({
-                "message": "Record details fetched successfully",
-                "details": response})
+        from prateek_gupta import configuration_properties, module_lock_message
+        enable_open_search = configuration_properties.get("OPEN_SEARCH_ENABLE", None)
+        if enable_open_search and enable_open_search == "A":
+            index_name = request.GET.get("indexName")
+            record_id = request.GET.get("docId")
+            response = await get_record(index_name, record_id)
+            if response is not None:
+                response = get_success_response({
+                    "message": "Record details fetched successfully",
+                    "details": response})
+            else:
+                response = get_success_response({
+                    "message": "Index doesn't exists"})
+
         else:
-            response = get_success_response({
-                "message": "Index doesn't exists"})
+            response=get_api_response({"message":module_lock_message},403)
     except ServiceException as e:
         response = get_error_response(e)
     except Exception:

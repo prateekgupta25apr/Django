@@ -1,7 +1,7 @@
 from django.urls import path
 
-from . import sync_views as sv
-from . import async_views as av
+from . import aws_sync_views as sv
+from . import aws_async_views as av
 
 urlpatterns = [
     path('async/get_file', av.get_file),
