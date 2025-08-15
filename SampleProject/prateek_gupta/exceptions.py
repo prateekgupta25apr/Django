@@ -5,7 +5,7 @@ from prateek_gupta import configuration_properties
 from prateek_gupta.LogManager import logger
 
 
-class ServiceException(BaseException):
+class ServiceException(Exception):
     class ExceptionType(Enum):
         UNKNOWN_ERROR = 500
         DB_ERROR = 500
