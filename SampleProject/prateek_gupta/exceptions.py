@@ -37,3 +37,13 @@ class ServiceException(Exception):
 def log_error():
     # Logging the exception
     logger.error(traceback.format_exc())
+
+    # Sending email to the Manager
+    # if mail_error:
+    #     email_subject = 'Error!!'
+    #     email_message = ('Please have a look at the following error<br><br> '
+    #                      '<div style="color:red;">' +
+    #                      str(traceback.format_exc()).replace("\n", " <br> ") +
+    #                      '</div>')
+    #     from util import send_email
+    #     send_email(email_subject, html_body=email_message)
