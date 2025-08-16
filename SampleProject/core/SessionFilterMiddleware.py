@@ -14,17 +14,17 @@ class SessionFilterMiddleware(MiddlewareMixin):
         # noinspection PyBroadException
         try:
             request.tenant_context = TenantContext(request)
-            request.context = Context(request)
+            request.user_context = UserContext(request)
             logger.info("Pre processing is done")
         except Exception:
             log_error()
             request.tenant_context = TenantContext(request)
-            request.context = Context(request)
+            request.user_context = UserContext(request)
 
     @staticmethod
     def process_response(request, response):
-        response.set_cookie(COOKIE_NAME,process_cookie(False,COOKIE_SECRET,
-                                                       cookie_data={"userId":1}))
+        response.set_cookie(COOKIE_NAME, process_cookie(False, COOKIE_SECRET,
+                                                        cookie_data={"userId": 1}))
         response['Access-Control-Allow-Origin'] = (
             request.META.get("HTTP_ORIGIN", None)) \
             if request.META.get("HTTP_ORIGIN", None) else '*'
@@ -43,37 +43,38 @@ class SessionFilterMiddleware(MiddlewareMixin):
 
 class TenantContext:
     """Objects of this class will be used for holding details of the current tenant"""
-    def __init__(self,request):
+
+    def __init__(self, request):
         # noinspection PyBroadException
         try:
             # noinspection PyBroadException
             try:
                 tenant_id = request.META.get("HTTP_TENANT_ID", "1")
-                self.schema_name="sample_project_"+str(tenant_id)
+                self.schema_name = "sample_project_" + str(tenant_id)
                 with connections['default'].cursor() as cursor:
-                    cursor.execute("use "+self.schema_name)
+                    cursor.execute("use " + self.schema_name)
             except Exception:
                 logger.error("Error occurred while setting schema for the tenant "
                              "provided hence setting default schema")
                 self.schema_name = configuration_properties['db_default_schema']
                 with connections['default'].cursor() as cursor:
-                    cursor.execute("use "+self.schema_name)
+                    cursor.execute("use " + self.schema_name)
         except Exception:
             log_error()
         super().__init__()
 
-class Context:
+
+class UserContext:
     """Objects of this class will be used for holding details of the current context"""
-    def __init__(self,request):
+
+    def __init__(self, request):
         # noinspection PyBroadException
         try:
-            self.user_id=0
+            self.user_id = 0
             cookie = request.COOKIES.get(COOKIE_NAME, "")
             if not any(x in request.build_absolute_uri() for x in ['no-auth']):
-                cookie_data=process_cookie(True,COOKIE_SECRET,cookie=cookie)
-                self.user_id=cookie_data.get("userId",0)
+                cookie_data = process_cookie(True, COOKIE_SECRET, cookie=cookie)
+                self.user_id = cookie_data.get("userId", 0)
         except Exception:
             log_error()
         super().__init__()
-
-

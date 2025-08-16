@@ -18,7 +18,7 @@ async def test(request):
         data["test_data"] = test_data
         data["schema_db"] = result[0]
         data["tenant_schema_name"] = request.tenant_context.schema_name
-        data["context_user_id"] = request.context.user_id
+        data["context_user_id"] = request.user_context.user_id
         from prateek_gupta import configuration_properties
         data["configuration_properties"] = configuration_properties
         response = get_success_response({"data": data})
@@ -36,7 +36,7 @@ async def health_check(request):
     from prateek_gupta import configuration_properties
     logger.info("Entering " +
                 request.path.replace(f"/{configuration_properties.get('context_path', '')}/",
-                                     "")+ "()")
+                                     "") + "()")
     # noinspection PyBroadException
     try:
         query = "SELECT DATABASE();"
@@ -104,12 +104,11 @@ async def load_config_value_from_db():
 
 @request_mapping('GET')
 async def render_html(request):
-    from prateek_gupta import configuration_properties
     logger.info("Entering render_html()")
     # noinspection PyBroadException
     try:
-        return render(request, 'SampleHtml.html',{
-            "variable_data":"PG"
+        return render(request, 'SampleHtml.html', {
+            "variable_data": "PG"
         })
     except ServiceException as e:
         response = get_error_response(e)
