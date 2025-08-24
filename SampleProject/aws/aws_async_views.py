@@ -21,12 +21,13 @@ async def get_file(request):
             else:
                 response = get_api_response({"message": "File not found"}, 400)
         else:
-            response=get_api_response({"message":module_lock_message},403)
+            response = get_api_response({"message": module_lock_message}, 403)
     except ServiceException as e:
         response = get_error_response(e)
     except Exception:
-        response=get_error_response(ServiceException())
+        response = get_error_response(ServiceException())
     return response
+
 
 @request_mapping("POST")
 async def upload_file(request):
@@ -36,20 +37,21 @@ async def upload_file(request):
         from prateek_gupta import configuration_properties, module_lock_message
         enable_aws = configuration_properties.get("AWS_ENABLE", None)
         if enable_aws and enable_aws == "A":
-            file=request.FILES['file']
+            file = request.FILES['file']
 
             await upload(file)
-            response=dict()
-            response['message']="Successfully uploaded the file : "+file.name
-            response=get_success_response(response)
+            response = dict()
+            response['message'] = "Successfully uploaded the file : " + file.name
+            response = get_success_response(response)
         else:
-            response=get_api_response({"message":module_lock_message},403)
+            response = get_api_response({"message": module_lock_message}, 403)
     except ServiceException as e:
         response = get_error_response(e)
     except Exception:
         response = get_error_response(ServiceException())
     logger.info("Existing upload_file()")
     return response
+
 
 @request_mapping("DELETE")
 async def delete_file(request):
@@ -59,20 +61,21 @@ async def delete_file(request):
         from prateek_gupta import configuration_properties, module_lock_message
         enable_aws = configuration_properties.get("AWS_ENABLE", None)
         if enable_aws and enable_aws == "A":
-            file_name=request.GET['file_name']
+            file_name = request.GET['file_name']
 
             await delete(file_name)
-            response=dict()
-            response['message']="Successfully delete the file : "+file_name
-            response=get_success_response(response)
+            response = dict()
+            response['message'] = "Successfully delete the file : " + file_name
+            response = get_success_response(response)
         else:
-            response=get_api_response({"message":module_lock_message},403)
+            response = get_api_response({"message": module_lock_message}, 403)
     except ServiceException as e:
         response = get_error_response(e)
     except Exception:
         response = get_error_response(ServiceException())
     logger.info("Existing delete_file()")
     return response
+
 
 @request_mapping("GET")
 async def get_pre_signed_url(request):
@@ -85,10 +88,12 @@ async def get_pre_signed_url(request):
             method = request.GET.get('method', None)
 
             url = await pre_signed_url(file_key, method)
-            response=get_success_response({"message":"Generated pre-signed url successfully",
-                         "Pre-Signed URL":url})
+            response = get_success_response({
+                "message": "Generated pre-signed url successfully",
+                "Pre-Signed URL": url
+            })
         else:
-            response=get_api_response({"message":module_lock_message},403)
+            response = get_api_response({"message": module_lock_message}, 403)
 
     except ServiceException as e:
         response = get_error_response(e)
