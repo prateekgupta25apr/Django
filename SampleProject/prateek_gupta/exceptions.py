@@ -1,7 +1,7 @@
 import traceback
 from enum import Enum
 
-from prateek_gupta import configuration_properties
+import prateek_gupta
 from prateek_gupta.LogManager import logger
 
 
@@ -21,14 +21,14 @@ class ServiceException(Exception):
             self.message = message
         elif exception_type is not None:
             self.status_id = exception_type.value
-            self.message = configuration_properties["exception_messages"].get(
+            self.message = prateek_gupta.configuration_properties["exception_messages"].get(
                 exception_type.name)
         elif message:
             self.message = message
             self.status_id = ServiceException.ExceptionType.UNKNOWN_ERROR.value
         else:
             self.status_id = ServiceException.ExceptionType.UNKNOWN_ERROR.value
-            self.message = configuration_properties["exception_messages"].get(
+            self.message = prateek_gupta.configuration_properties["exception_messages"].get(
                 ServiceException.ExceptionType.UNKNOWN_ERROR.name)
 
         super().__init__(self.message)

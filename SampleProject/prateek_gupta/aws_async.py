@@ -5,7 +5,6 @@ import prateek_gupta
 from prateek_gupta.exceptions import *
 
 local_run = prateek_gupta.local
-configuration_properties = prateek_gupta.configuration_properties
 
 
 async def get_s3_client():
@@ -16,19 +15,21 @@ async def get_s3_client():
     config = AioConfig(signature_version="s3v4")
     async with session.client('s3', config=config) as s3_client:
         if s3_client is None or local_run:
-            if all(configuration_properties[field] for field in
-                   ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_S3_REGION_NAME']):
+            if all(prateek_gupta.configuration_properties[field] for field in
+                   ['AWS_ACCESS_KEY', 'AWS_SECRET_KEY', 'AWS_REGION_NAME']):
                 logger.info("Static : Access Key : " +
-                            configuration_properties['AWS_ACCESS_KEY_ID'] +
+                            prateek_gupta.configuration_properties['AWS_ACCESS_KEY'] +
                             " ; Secret Key " +
-                            configuration_properties['AWS_SECRET_ACCESS_KEY'])
+                            prateek_gupta.configuration_properties['AWS_SECRET_KEY'])
 
                 async with session.client(
                         's3',
-                        aws_access_key_id=configuration_properties['AWS_ACCESS_KEY_ID'],
+                        aws_access_key_id=prateek_gupta.configuration_properties[
+                            'AWS_ACCESS_KEY'],
                         aws_secret_access_key=
-                        configuration_properties['AWS_SECRET_ACCESS_KEY'],
-                        region_name=configuration_properties['AWS_S3_REGION_NAME'],
+                        prateek_gupta.configuration_properties['AWS_SECRET_KEY'],
+                        region_name=prateek_gupta.configuration_properties[
+                            'AWS_REGION_NAME'],
                 ) as s3_client_obj:
                     s3_client = s3_client_obj
             else:
@@ -46,7 +47,7 @@ async def get_s3_client():
 def get_bucket_name(default=False):
     # noinspection PyBroadException
     try:
-        bucket_name = configuration_properties['AWS_STORAGE_BUCKET_NAME']
+        bucket_name = prateek_gupta.configuration_properties['AWS_BUCKET_NAME']
 
         if default or not bucket_name:
             bucket_name = "pg"
