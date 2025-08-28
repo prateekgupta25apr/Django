@@ -5,8 +5,8 @@ from django.http import HttpResponse, FileResponse
 
 from prateek_gupta.LogManager import logger
 from prateek_gupta.aws_sync import (check_file_existence, get_file_content_in_bytes,
-                                    get_bucket_name, upload, delete, \
-                                    get_s3_client, pre_signed_url)
+                                    upload, delete, \
+                                    get_s3_client, pre_signed_url, update_file_name)
 from prateek_gupta.exceptions import ServiceException
 from prateek_gupta.utils import (request_mapping, async_iterator)
 from utils import (get_success_response, get_api_response, get_error_response)
@@ -44,10 +44,12 @@ def upload_file(request):
         enable_aws = configuration_properties.get("AWS_ENABLE", None)
         if enable_aws and enable_aws == "S":
             file = request.FILES['file']
-
-            upload(file)
+            file_key = update_file_name(file.name)
+            upload(file,file_key=file_key)
             response = dict()
             response['message'] = "Successfully uploaded the file : " + file.name
+            response['file_name'] = file.name
+            response['file_key'] = file_key
             response = get_success_response(response)
         else:
             response=get_api_response({"message":module_lock_message},403)

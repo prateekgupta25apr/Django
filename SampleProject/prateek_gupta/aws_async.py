@@ -1,7 +1,9 @@
+import datetime
+import os.path
+
 import aioboto3
 from aiobotocore.config import AioConfig
 
-import prateek_gupta
 from prateek_gupta.exceptions import *
 
 local_run = prateek_gupta.local
@@ -81,7 +83,7 @@ async def get_file_content_in_bytes(file_name=None):
 
 
 async def upload(file, bucket_name=None, prefix="",
-                 file_name=None, content_type=None):
+                 file_key=None, content_type=None):
     logger.info("Entering upload()")
     if bucket_name is None:
         bucket_name = get_bucket_name()
@@ -92,7 +94,7 @@ async def upload(file, bucket_name=None, prefix="",
                 message="Couldn't establish a connection to AWS")
 
         await s3_client.upload_fileobj(
-            file, bucket_name, (prefix + (file_name if file_name is not None
+            file, bucket_name, (prefix + (file_key if file_key is not None
                                           else file.name)),
             ExtraArgs={'ContentType':
                            (content_type if content_type is not None
@@ -158,3 +160,9 @@ async def pre_signed_url(file_key,method:str=None):
             (method.lower()+'_object'),Params={'Bucket': bucket_name, 'Key': file_key})
     logger.info("Exiting pre_signed_url()")
     return url
+
+
+def update_file_name(file_name:str):
+    name,ext=os.path.splitext(file_name)
+    return (name.replace(" ", "_") + "_" +
+            str(int(datetime.datetime.now().timestamp() * 1000)) + ext)

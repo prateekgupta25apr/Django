@@ -38,10 +38,12 @@ async def upload_file(request):
         enable_aws = configuration_properties.get("AWS_ENABLE", None)
         if enable_aws and enable_aws == "A":
             file = request.FILES['file']
-
-            await upload(file)
+            file_key=update_file_name(file.name)
+            await upload(file,file_key=file_key)
             response = dict()
             response['message'] = "Successfully uploaded the file : " + file.name
+            response['file_name']=file.name
+            response['file_key']=file_key
             response = get_success_response(response)
         else:
             response = get_api_response({"message": module_lock_message}, 403)

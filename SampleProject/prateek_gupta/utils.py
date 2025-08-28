@@ -140,7 +140,7 @@ def execute_thread_query(query, method=None):
         from prateek_gupta import exceptions, configuration_properties
         with (mysql.connector.connect(
                 host=configuration_properties['db_host'],
-                user=configuration_properties['db_user'],
+                user=configuration_properties['db_user_name'],
                 password=configuration_properties['db_password']) as
         manual_connection):
             with manual_connection.cursor() as manual_cursor:

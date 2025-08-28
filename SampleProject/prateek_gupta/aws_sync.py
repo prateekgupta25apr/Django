@@ -1,3 +1,6 @@
+import datetime
+import os
+
 import boto3
 from botocore.config import Config
 
@@ -17,17 +20,17 @@ def get_s3_client():
 
     if s3_client is None or local_run:
         if all(configuration_properties[field] for field in
-               ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_S3_REGION_NAME']):
+               ['AWS_ACCESS_KEY', 'AWS_SECRET_KEY', 'AWS_REGION_NAME']):
             logger.info("Static : Access Key : " +
-                        configuration_properties['AWS_ACCESS_KEY_ID'] +
+                        configuration_properties['AWS_ACCESS_KEY'] +
                         " ; Secret Key " +
-                        configuration_properties['AWS_SECRET_ACCESS_KEY'])
+                        configuration_properties['AWS_SECRET_KEY'])
 
             s3_client = session.client(
                 's3',
-                aws_access_key_id=configuration_properties['AWS_ACCESS_KEY_ID'],
-                aws_secret_access_key=configuration_properties['AWS_SECRET_ACCESS_KEY'],
-                region_name=configuration_properties['AWS_S3_REGION_NAME'],
+                aws_access_key_id=configuration_properties['AWS_ACCESS_KEY'],
+                aws_secret_access_key=configuration_properties['AWS_SECRET_KEY'],
+                region_name=configuration_properties['AWS_REGION_NAME'],
             )
         else:
             logger.info("Configs AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY or "
@@ -44,7 +47,7 @@ def get_s3_client():
 def get_bucket_name(default=False):
     # noinspection PyBroadException
     try:
-        bucket_name = configuration_properties['AWS_STORAGE_BUCKET_NAME']
+        bucket_name = configuration_properties['AWS_BUCKET_NAME']
 
         if default or not bucket_name:
             bucket_name = "pg"
@@ -76,7 +79,7 @@ def get_file_content_in_bytes(file_name=None):
 
 
 def upload(file, bucket_name=None, prefix="",
-           file_name=None, content_type=None):
+           file_key=None, content_type=None):
     logger.info("Entering upload()")
     s3_client = get_s3_client()
 
@@ -88,7 +91,7 @@ def upload(file, bucket_name=None, prefix="",
             message="Couldn't establish a connection to AWS")
 
     s3_client.upload_fileobj(
-        file, bucket_name, (prefix + (file_name if file_name is not None else file.name)),
+        file, bucket_name, (prefix + (file_key if file_key is not None else file.name)),
         ExtraArgs={'ContentType':
                        (content_type if content_type is not None else file.content_type)})
     logger.info("Exiting upload()")
@@ -152,3 +155,8 @@ def pre_signed_url(file_key,method:str=None):
         Params={'Bucket': bucket_name, 'Key': file_key})
     logger.info("Exiting pre_signed_url()")
     return url
+
+def update_file_name(file_name:str):
+    name,ext=os.path.splitext(file_name)
+    return (name.replace(" ", "_") + "_" +
+            str(int(datetime.datetime.now().timestamp() * 1000)) + ext)
