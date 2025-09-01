@@ -156,7 +156,7 @@ def pre_signed_url(file_key,method:str=None):
     logger.info("Exiting pre_signed_url()")
     return url
 
-def update_file_name(file_name:str):
+def update_file_name(file_name:str,prefix=""):
     name,ext=os.path.splitext(file_name)
-    return (name.replace(" ", "_") + "_" +
+    return (prefix + name.replace(" ", "_") + "_" +
             str(int(datetime.datetime.now().timestamp() * 1000)) + ext)
