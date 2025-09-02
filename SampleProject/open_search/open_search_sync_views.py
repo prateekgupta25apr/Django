@@ -1,7 +1,7 @@
 from django.http.multipartparser import MultiPartParser
 
 from prateek_gupta.LogManager import logger
-from prateek_gupta.exceptions import ServiceException
+from prateek_gupta.exceptions import ServiceException, module_lock_check
 from prateek_gupta.open_search_sync import (
     get_index, create_index, update_index, delete_index, get_record,
     upsert_record, partial_update_record, delete_record, search_record, count_record,
@@ -15,6 +15,8 @@ def get_index_request(request):
     logger.info("Entering get_index_request()")
     # noinspection PyBroadException
     try:
+        module_lock_check("OPEN_SEARCH_ENABLE", "S")
+
         index_name = request.GET.get("indexName")
         response = get_index(index_name)
         if response is not None:
@@ -37,6 +39,8 @@ def create_index_request(request):
     logger.info("Entering create_index_request()")
     # noinspection PyBroadException
     try:
+        module_lock_check("OPEN_SEARCH_ENABLE", "S")
+
         index_name = request.POST.get("indexName")
         body = request.POST.get("source")
         response = create_index(index_name, body)
@@ -59,6 +63,8 @@ def update_index_request(request):
     logger.info("Entering update_index_request()")
     # noinspection PyBroadException
     try:
+        module_lock_check("OPEN_SEARCH_ENABLE", "S")
+
         parser = MultiPartParser(request.META, request, request.upload_handlers)
         payload, _ = parser.parse()
         index_name = payload.get("indexName")
@@ -86,6 +92,8 @@ def delete_index_request(request):
     logger.info("Entering delete_index_request()")
     # noinspection PyBroadException
     try:
+        module_lock_check("OPEN_SEARCH_ENABLE", "S")
+
         index_name = request.GET.get("indexName")
         response = delete_index(index_name)
         if response is not None:
@@ -107,6 +115,8 @@ def get_record_request(request):
     logger.info("Entering get_record_request()")
     # noinspection PyBroadException
     try:
+        module_lock_check("OPEN_SEARCH_ENABLE", "S")
+
         index_name = request.GET.get("indexName")
         record_id = request.GET.get("docId")
         response = get_record(index_name, record_id)
@@ -130,6 +140,8 @@ def upsert_record_request(request):
     logger.info("Entering upsert_record_request()")
     # noinspection PyBroadException
     try:
+        module_lock_check("OPEN_SEARCH_ENABLE", "S")
+
         index_name = request.POST.get("indexName")
         doc_id = request.POST.get("docId")
         data = request.POST.get("data")
@@ -156,6 +168,8 @@ def partial_update_record_request(request):
     logger.info("Entering partial_update_record_request()")
     # noinspection PyBroadException
     try:
+        module_lock_check("OPEN_SEARCH_ENABLE", "S")
+
         parser = MultiPartParser(request.META, request, request.upload_handlers)
         payload, _ = parser.parse()
         index_name = payload.get("indexName")
@@ -184,6 +198,8 @@ def delete_record_request(request):
     logger.info("Entering delete_record_request()")
     # noinspection PyBroadException
     try:
+        module_lock_check("OPEN_SEARCH_ENABLE", "S")
+
         index_name = request.GET.get("indexName")
         record_id = request.GET.get("docId")
         bulk = request.GET.get("bulk",False)
@@ -208,6 +224,8 @@ def search_record_request(request):
     logger.info("Entering search_record_request()")
     # noinspection PyBroadException
     try:
+        module_lock_check("OPEN_SEARCH_ENABLE", "S")
+
         index_name = request.POST.get("indexName")
         search_json = request.POST.get("searchJSON")
         response = search_record(index_name, search_json)
@@ -232,6 +250,8 @@ def count_record_request(request):
     logger.info("Entering count_record_request()")
     # noinspection PyBroadException
     try:
+        module_lock_check("OPEN_SEARCH_ENABLE", "S")
+
         index_name = request.POST.get("indexName")
         search_json = request.POST.get("searchJSON")
         response = count_record(index_name, search_json)
@@ -256,6 +276,8 @@ def delete_by_query_record_request(request):
     logger.info("Entering delete_by_query_record_request()")
     # noinspection PyBroadException
     try:
+        module_lock_check("OPEN_SEARCH_ENABLE", "S")
+
         index_name = request.POST.get("indexName")
         search_json = request.POST.get("searchJSON")
         response = delete_by_query_record(index_name, search_json)
