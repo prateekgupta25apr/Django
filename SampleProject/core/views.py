@@ -3,8 +3,8 @@ from django.shortcuts import render
 from prateek_gupta import post_construct_method
 from prateek_gupta.LogManager import logger, rotate_log_files
 from prateek_gupta.exceptions import ServiceException
-from prateek_gupta.utils import execute_query, request_mapping
-from utils import get_error_response, get_success_response, get_api_response
+from prateek_gupta.utils import request_mapping
+from utils import get_error_response, get_success_response, get_api_response, execute_query
 
 
 @request_mapping('GET')
