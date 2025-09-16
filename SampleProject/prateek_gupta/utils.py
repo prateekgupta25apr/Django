@@ -2,14 +2,14 @@ import asyncio
 import os
 import sys
 
-import django
+
 import javaproperties
 import jwt
 from asgiref.sync import sync_to_async
-from django.db import connections, transaction
+
 
 from utils import get_success_response, get_error_response
-import mysql.connector
+
 
 
 def process_cookie(decode, secret_key, cookie="",
@@ -101,67 +101,6 @@ def request_mapping(method_name):
 
 async def async_iterator(data):
     yield data
-
-
-@sync_to_async
-def execute_query(query, method=None, thread_execution=None):
-    # noinspection PyBroadException
-    try:
-        if not thread_execution:
-            try:
-                connection = connections['default']
-
-                with transaction.atomic():
-                    with connection.cursor() as cursor:
-                        result = cursor.execute(query)
-
-                        if method == 'fetchone':
-                            result = cursor.fetchone()
-                        elif method == 'fetchall':
-                            result = cursor.fetchall()
-
-                return result
-            except django.db.utils.OperationalError:
-                from prateek_gupta import exceptions
-                exceptions.log_error()
-                from prateek_gupta.LogManager import logger
-                logger.info(f"DB_EXECUTION_ERROR: Executing query with new connection")
-                return execute_thread_query(query, method)
-        else:
-            return execute_thread_query(query, method)
-    except Exception as e:
-        from prateek_gupta import exceptions
-        exceptions.log_error()
-        raise e
-
-
-def execute_thread_query(query, method=None):
-    try:
-        from prateek_gupta import exceptions, configuration_properties
-        with (mysql.connector.connect(
-                host=configuration_properties['db_host'],
-                user=configuration_properties['db_user_name'],
-                password=configuration_properties['db_password']) as
-        manual_connection):
-            with manual_connection.cursor() as manual_cursor:
-                manual_cursor.execute(query)
-
-                if method == 'fetchone':
-                    result = manual_cursor.fetchone()
-                elif method == 'fetchall':
-                    result = manual_cursor.fetchall()
-                else:
-                    result = manual_cursor.rowcount
-                    manual_connection.commit()
-
-                return result
-
-    except mysql.connector.Error as e:
-        from prateek_gupta import exceptions
-        exceptions.log_error()
-        from prateek_gupta.LogManager import logger
-        logger.info(f"DB_EXECUTION_ERROR: Even manual connection failed")
-        raise e
 
 
 @sync_to_async
