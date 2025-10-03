@@ -13,7 +13,7 @@ class ServiceException(Exception):
         UNAUTHORIZED = 401
         PAGE_NOT_FOUND = 404
         METHOD_NOT_ALLOWED = 405
-        MODULE_LOCK=403
+        MODULE_LOCK = 403
 
     def __init__(self, exception_type: ExceptionType = None,
                  status_id=None, message=""):
@@ -49,7 +49,8 @@ def log_error():
     #     from util import send_email
     #     send_email(email_subject, html_body=email_message)
 
-def module_lock_check(field_key:str,field_value:str):
+
+def module_lock_check(field_key: str, field_value: str):
     from prateek_gupta import configuration_properties
     config_value = configuration_properties.get(field_key, None)
     if not config_value or config_value != field_value:

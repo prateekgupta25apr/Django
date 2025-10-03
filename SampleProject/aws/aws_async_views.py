@@ -10,7 +10,7 @@ from utils import (get_success_response, get_api_response, get_error_response)
 async def get_file(request):
     # noinspection PyBroadException
     try:
-        module_lock_check("AWS_ENABLE","A")
+        module_lock_check("AWS_ENABLE", "A")
 
         file_key = request.GET.get('file_name')
         if await check_file_existence(file_key):
@@ -31,15 +31,15 @@ async def upload_file(request):
     logger.info("Entering upload_file()")
     # noinspection PyBroadException
     try:
-        module_lock_check("AWS_ENABLE","A")
+        module_lock_check("AWS_ENABLE", "A")
 
         file = request.FILES['file']
-        file_key=update_file_name(file.name)
-        await upload(file,file_key=file_key)
+        file_key = update_file_name(file.name)
+        await upload(file, file_key=file_key)
         response = dict()
         response['message'] = "Successfully uploaded the file : " + file.name
-        response['file_name']=file.name
-        response['file_key']=file_key
+        response['file_name'] = file.name
+        response['file_key'] = file_key
         response = get_success_response(response)
     except ServiceException as e:
         response = get_error_response(e)
@@ -54,7 +54,7 @@ async def delete_file(request):
     logger.info("Entering delete_file()")
     # noinspection PyBroadException
     try:
-        module_lock_check("AWS_ENABLE","A")
+        module_lock_check("AWS_ENABLE", "A")
 
         file_name = request.GET['file_name']
 
@@ -74,7 +74,7 @@ async def delete_file(request):
 async def get_pre_signed_url(request):
     # noinspection PyBroadException
     try:
-        module_lock_check("AWS_ENABLE","A")
+        module_lock_check("AWS_ENABLE", "A")
 
         file_key = request.GET.get('file_name')
         method = request.GET.get('method', None)
