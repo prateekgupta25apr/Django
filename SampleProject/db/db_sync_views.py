@@ -3,8 +3,8 @@ import json
 from django.http.multipartparser import MultiPartParser
 
 from prateek_gupta.LogManager import logger
-from prateek_gupta.db_sync import (get_data, save_data, update_data,
-                                    partial_update_data, delete_data)
+from db.db_sync import (get_data, save_data, update_data,
+                        partial_update_data, delete_data)
 from prateek_gupta.exceptions import ServiceException
 from prateek_gupta.utils import request_mapping
 from utils import get_success_response, get_error_response
