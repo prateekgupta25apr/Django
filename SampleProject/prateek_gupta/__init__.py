@@ -3,6 +3,7 @@ from pathlib import Path
 
 from prateek_gupta.utils import (load_properties_from_file)
 from .project_settings import *
+import atexit
 
 project_dir = str(Path(__file__).resolve().parent.parent).replace("\\", "/")
 if project_dir[-1] != "/":
@@ -33,6 +34,13 @@ def post_construct_method(*args, **kwargs):
         return function_name
 
     return post_construct_method_args
+
+
+def post_destruct_method(*args, **kwargs):
+    def post_destruct_method_args(function_name):
+        atexit.register(function_name,*args,**kwargs)
+        return function_name
+    return post_destruct_method_args
 
 
 @pre_construct_method()
@@ -98,3 +106,4 @@ async def post_construct_method_execution():
                                           **details.get("kwargs", {}))
         else:
             details.get("function")(*details.get("args", []), **details.get("kwargs", {}))
+
