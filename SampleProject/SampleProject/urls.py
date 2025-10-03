@@ -20,7 +20,7 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include("core.urls")),
-    path('db/', include("db.urls")),
+    path('db/', include("db.db_urls")),
     path('aws/', include("aws.urls")),
     path('documents/', include("documents.urls")),
     path('kafka/', include("kafka.kafka_urls")),
