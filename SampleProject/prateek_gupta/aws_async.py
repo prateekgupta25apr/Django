@@ -96,9 +96,8 @@ async def upload(file, bucket_name=None, prefix="",
         await s3_client.upload_fileobj(
             file, bucket_name, (prefix + (file_key if file_key is not None
                                           else file.name)),
-            ExtraArgs={'ContentType':
-                           (content_type if content_type is not None
-                            else file.content_type)})
+            ExtraArgs={'ContentType': (content_type if content_type is not None
+                                       else file.content_type)})
     logger.info("Exiting upload()")
 
 
@@ -142,7 +141,7 @@ async def check_file_existence(file_key):
     return exists
 
 
-async def pre_signed_url(file_key,method:str=None):
+async def pre_signed_url(file_key, method: str = None):
     logger.info("Entering pre_signed_url()")
     bucket_name = get_bucket_name()
     if not bucket_name:
@@ -157,12 +156,12 @@ async def pre_signed_url(file_key,method:str=None):
             method = "get"
 
         url = await s3_client.generate_presigned_url(
-            (method.lower()+'_object'),Params={'Bucket': bucket_name, 'Key': file_key})
+            (method.lower() + '_object'), Params={'Bucket': bucket_name, 'Key': file_key})
     logger.info("Exiting pre_signed_url()")
     return url
 
 
-def update_file_name(file_name:str,prefix=""):
-    name,ext=os.path.splitext(file_name)
+def update_file_name(file_name: str, prefix=""):
+    name, ext = os.path.splitext(file_name)
     return (prefix + name.replace(" ", "_") + "_" +
             str(int(datetime.datetime.now().timestamp() * 1000)) + ext)
