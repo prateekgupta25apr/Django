@@ -8,8 +8,8 @@ from utils import execute_query
 def get_data(primary_key):
     query = (f"select * from table_1 where primary_key={primary_key}"
              if primary_key is not None else "select * from table_1")
-    future:Future=executor.submit(asyncio.run,execute_query(query,'fetchall'))
-    result =  future.result()
+    future: Future = executor.submit(asyncio.run, execute_query(query, 'fetchall'))
+    result = future.result()
     result_list = list()
     for record in result:
         data = dict()
@@ -48,6 +48,7 @@ def partial_update_data(primary_key, col_1=None, col_2=None):
     query = (f"update table_1 set " + set_cols + f" where primary_key={primary_key}")
     future: Future = executor.submit(asyncio.run, execute_query(query))
     future.result()
+
 
 def delete_data(primary_key):
     query = f"delete from table_1 where primary_key={primary_key}"
