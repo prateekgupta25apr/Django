@@ -9,7 +9,6 @@ project_dir = str(Path(__file__).resolve().parent.parent).replace("\\", "/")
 if project_dir[-1] != "/":
     project_dir += "/"
 
-
 configuration_properties = dict()
 
 pre_construct_method_dict = {}
@@ -38,8 +37,9 @@ def post_construct_method(*args, **kwargs):
 
 def post_destruct_method(*args, **kwargs):
     def post_destruct_method_args(function_name):
-        atexit.register(function_name,*args,**kwargs)
+        atexit.register(function_name, *args, **kwargs)
         return function_name
+
     return post_destruct_method_args
 
 
@@ -106,4 +106,3 @@ async def post_construct_method_execution():
                                           **details.get("kwargs", {}))
         else:
             details.get("function")(*details.get("args", []), **details.get("kwargs", {}))
-
