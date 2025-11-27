@@ -17,13 +17,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from prateek_gupta import configuration_properties
+
+context_path=configuration_properties.get('context_path', '')
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', include("core.urls")),
-    path('db/', include("db.db_urls")),
-    path('aws/', include("aws.urls")),
-    path('documents/', include("documents.urls")),
-    path('kafka/', include("kafka.kafka_urls")),
-    path('redis/', include("redis_module.redis_urls")),
-    path('open_search/', include("open_search.open_search_urls")),
+    path(context_path+'/admin/', admin.site.urls),
+    path(context_path+'/', include("core.urls")),
+    path(context_path+'/db/', include("db.db_urls")),
+    path(context_path+'/aws/', include("aws.urls")),
+    path(context_path+'/documents/', include("documents.urls")),
+    path(context_path+'/kafka/', include("kafka.kafka_urls")),
+    path(context_path+'/redis/', include("redis_module.redis_urls")),
+    path(context_path+'/open_search/', include("open_search.open_search_urls")),
 ]
