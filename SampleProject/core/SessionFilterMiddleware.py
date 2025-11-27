@@ -47,15 +47,23 @@ class TenantContext:
     def __init__(self, request):
         # noinspection PyBroadException
         try:
-            # noinspection PyBroadException
-            try:
-                tenant_id = request.META.get("HTTP_TENANT_ID", "1")
-                self.schema_name = "sample_project_" + str(tenant_id)
-                with connections['default'].cursor() as cursor:
-                    cursor.execute("use " + self.schema_name)
-            except Exception:
-                logger.error("Error occurred while setting schema for the tenant "
-                             "provided hence setting default schema")
+            use_default_schema=False
+            db_schema_prefix=configuration_properties.get("db_schema_prefix",'')
+            if db_schema_prefix:
+                # noinspection PyBroadException
+                try:
+                    tenant_id = request.META.get("HTTP_TENANT_ID", "1")
+                    self.schema_name = db_schema_prefix + str(tenant_id)
+                    with connections['default'].cursor() as cursor:
+                        cursor.execute("use " + self.schema_name)
+                except Exception:
+                    logger.error("Error occurred while setting schema for the tenant "
+                                 "provided hence setting default schema")
+                    use_default_schema=True
+            else:
+                use_default_schema = True
+
+            if use_default_schema:
                 self.schema_name = configuration_properties['db_default_schema']
                 with connections['default'].cursor() as cursor:
                     cursor.execute("use " + self.schema_name)
