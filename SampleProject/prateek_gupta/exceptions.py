@@ -14,6 +14,8 @@ class ServiceException(Exception):
         PAGE_NOT_FOUND = 404
         METHOD_NOT_ALLOWED = 405
         MODULE_LOCK = 403
+        FORBIDDEN = 403
+        LOGIN_REQUIRED = 200
 
     def __init__(self, exception_type: ExceptionType = None,
                  status_id=None, message=""):
