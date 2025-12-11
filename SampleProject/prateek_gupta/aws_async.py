@@ -28,8 +28,8 @@ async def get_s3_client():
                         's3',
                         aws_access_key_id=prateek_gupta.configuration_properties[
                             'AWS_ACCESS_KEY'],
-                        aws_secret_access_key=
-                        prateek_gupta.configuration_properties['AWS_SECRET_KEY'],
+                        aws_secret_access_key=(
+                                prateek_gupta.configuration_properties['AWS_SECRET_KEY']),
                         region_name=prateek_gupta.configuration_properties[
                             'AWS_REGION_NAME'],
                 ) as s3_client_obj:
@@ -96,8 +96,8 @@ async def upload(file, bucket_name=None, prefix="",
         await s3_client.upload_fileobj(
             file, bucket_name, (prefix + (file_key if file_key is not None
                                           else file.name)),
-            ExtraArgs={'ContentType': (content_type if content_type is not None
-                                       else file.content_type)})
+            ExtraArgs={'ContentType': (
+                content_type if content_type is not None else file.content_type)})
     logger.info("Exiting upload()")
 
 
@@ -121,7 +121,15 @@ async def delete(file_name):
 
 async def check_file_existence(file_key):
     logger.info("Entering check_file_existence()")
+    exists = (await get_file_details(file_key)) is not None
+    logger.info("Exiting check_file_existence()")
+    return exists
+
+
+async def get_file_details(file_key):
+    logger.info("Entering get_file_details()")
     bucket_name = get_bucket_name()
+    file_details = None
     if not bucket_name:
         raise ServiceException(message="Couldn't get bucket name")
 
@@ -132,13 +140,11 @@ async def check_file_existence(file_key):
 
         # noinspection PyBroadException
         try:
-            await s3_client.head_object(Bucket=bucket_name, Key=file_key)
-            exists = True
+            file_details = await s3_client.head_object(Bucket=bucket_name, Key=file_key)
         except Exception:
             log_error()
-            exists = False
-    logger.info("Exiting check_file_existence()")
-    return exists
+    logger.info("Exiting get_file_details()")
+    return file_details
 
 
 async def pre_signed_url(file_key, method: str = None):

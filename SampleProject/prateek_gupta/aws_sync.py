@@ -4,7 +4,6 @@ import os
 import boto3
 from botocore.config import Config
 
-import prateek_gupta
 from prateek_gupta.exceptions import *
 
 local_run = prateek_gupta.local
@@ -92,8 +91,8 @@ def upload(file, bucket_name=None, prefix="",
 
     s3_client.upload_fileobj(
         file, bucket_name, (prefix + (file_key if file_key is not None else file.name)),
-        ExtraArgs={'ContentType':
-                       (content_type if content_type is not None else file.content_type)})
+        ExtraArgs={'ContentType': (
+            content_type if content_type is not None else file.content_type)})
     logger.info("Exiting upload()")
 
 
@@ -116,7 +115,15 @@ def delete(file_name):
 
 def check_file_existence(file_key):
     logger.info("Entering check_file_existence()")
+    exists = (get_file_details(file_key)) is not None
+    logger.info("Exiting check_file_existence()")
+    return exists
+
+
+def get_file_details(file_key):
+    logger.info("Entering get_file_details()")
     bucket_name = get_bucket_name()
+    file_details = None
     if not bucket_name:
         raise ServiceException(message="Couldn't get bucket name")
 
@@ -125,19 +132,16 @@ def check_file_existence(file_key):
         raise ServiceException(
             message="Couldn't establish a connection to AWS")
 
-    # Fetch file from S3
     # noinspection PyBroadException
     try:
-        s3_client.head_object(Bucket=bucket_name, Key=file_key)
-        exists = True
+        file_details = s3_client.head_object(Bucket=bucket_name, Key=file_key)
     except Exception:
         log_error()
-        exists = False
-    logger.info("Exiting check_file_existence()")
-    return exists
+    logger.info("Exiting get_file_details()")
+    return file_details
 
 
-def pre_signed_url(file_key,method:str=None):
+def pre_signed_url(file_key, method: str = None):
     logger.info("Entering pre_signed_url()")
     bucket_name = get_bucket_name()
     if not bucket_name:
@@ -149,14 +153,15 @@ def pre_signed_url(file_key,method:str=None):
             message="Couldn't establish a connection to AWS")
 
     if not method:
-        method="get"
+        method = "get"
     url = s3_client.generate_presigned_url(
-        (method.lower()+'_object'),
+        (method.lower() + '_object'),
         Params={'Bucket': bucket_name, 'Key': file_key})
     logger.info("Exiting pre_signed_url()")
     return url
 
-def update_file_name(file_name:str,prefix=""):
-    name,ext=os.path.splitext(file_name)
+
+def update_file_name(file_name: str, prefix=""):
+    name, ext = os.path.splitext(file_name)
     return (prefix + name.replace(" ", "_") + "_" +
             str(int(datetime.datetime.now().timestamp() * 1000)) + ext)

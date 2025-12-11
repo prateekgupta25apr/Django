@@ -106,3 +106,9 @@ def execute_thread_query(query, method=None):
         logger.info(f"DB_EXECUTION_ERROR: Even manual connection failed")
         raise e
 
+
+def validate_user_login(request):
+    from prateek_gupta.exceptions import ServiceException
+    if request.user_context.user_id <= 0:
+        raise ServiceException(exception_type=ServiceException.ExceptionType.LOGIN_REQUIRED)
+

@@ -1,15 +1,13 @@
 import asyncio
 import os
 import sys
-
+from urllib.parse import urljoin
 
 import javaproperties
 import jwt
 from asgiref.sync import sync_to_async
 
-
 from utils import get_success_response, get_error_response
-
 
 
 def process_cookie(decode, secret_key, cookie="",
@@ -36,8 +34,8 @@ def process_cookie(decode, secret_key, cookie="",
 
 
 async def load_properties_from_file(
-        file_path, required_fields, expected_fields,fetch_all):
-    properties_holder=dict()
+        file_path, required_fields, expected_fields, fetch_all):
+    properties_holder = dict()
     # noinspection PyBroadException
     try:
         missing_fields = list()
@@ -106,3 +104,10 @@ async def async_iterator(data):
 @sync_to_async
 def execute_as_async(method, *args, **kwargs):
     return method(*args, **kwargs)
+
+
+def build_url(relative_url):
+    from prateek_gupta import configuration_properties
+    context_path = configuration_properties.get('context_path', '')
+    base_url = configuration_properties.get('base_url', '')
+    return urljoin(base_url, context_path + "/" + relative_url) if relative_url else ""
