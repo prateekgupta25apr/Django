@@ -3,6 +3,7 @@ import os
 import re
 import shutil
 import sys
+from _contextvars import ContextVar
 from datetime import datetime
 
 from prateek_gupta import project_dir, console_logs
@@ -10,6 +11,24 @@ from prateek_gupta import project_dir, console_logs
 main_log_folder_name = "logs/"
 main_log_file_name = "logs.log"
 max_file_size = 1024 * 1024 * 10  # 10MB
+
+task_name_holder = ContextVar("task_name")
+task_name_holder.set(None)
+
+
+class FilterTaskId(logging.Filter):
+    def filter(self, record):
+        try:
+            import asyncio
+            task = asyncio.current_task()
+            task_name = task.get_name() if task else None
+            if len(task_name) > 20:
+                task_name = task_name_holder.get()
+
+            record.task_id = task_name
+        except RuntimeError:
+            record.task_id = None
+        return True
 
 
 class LogFileLogger:
@@ -24,8 +43,11 @@ class LogFileLogger:
         else:
             handler = LogFileHandler(file_path)
 
+        handler.addFilter(FilterTaskId())
         handler.setFormatter(logging.Formatter(
-            fmt="%(asctime)s.%(msecs)03d %(funcName)s(){%(filename)s} : %(message)s",
+            fmt=(
+                "[%(thread)d(%(threadName)s)(%(task_id)s)] "
+                "%(asctime)s.%(msecs)03d %(funcName)s(){%(filename)s} : %(message)s"),
             datefmt="%Y-%m-%d %H:%M:%S",
         ))
         self.logger.addHandler(handler)
