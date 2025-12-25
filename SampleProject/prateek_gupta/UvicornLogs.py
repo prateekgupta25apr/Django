@@ -47,7 +47,8 @@ uvicorn_logs_config = {
         'file': {
             'level': 'DEBUG',
             'class': 'prateek_gupta.LogManager.LogFileHandler',
-            'file_path': str(project_dir).replace("\\", "/") + "/" + main_log_folder_name,
+            'file_path': (str(project_dir).replace("\\", "/") + "/" +
+                          main_log_folder_name),
             'formatter': 'formatter',
             "filters": ["task_id_filter"],
         },
