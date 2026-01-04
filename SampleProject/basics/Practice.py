@@ -1,29 +1,42 @@
-d = 131.5
-dd = 109.38 -25
-dn = 6
-mn = 7
-m = 139.69
-md = 33.07-6
+# Handling charges without tax
+total_taxable_amt = 11.43
+total_c_gst_amt = 0
+total_gross_amt = 0
+total_discount_amt = 0
+total_final_amt = 0
 
-print("D")
-dta = (dn * d) - dd
-print(f"Taxable Amt : {dta:.2f}")
-print(f"Discount Amt : {dd:.2f}")
-print(f"GST Amt : {(dta * 0.05):.2f}")
-print(f"Total Amt : {(dta * 0.05) + dta:.2f}")
+details = [
+    {
+        "name": "KeraBlak",
+        "price": 198.19,
+        "discount": 3.24,
+        "qty": 12
+    }
+]
 
-print("M")
-mta = (mn * m) - md
-print(f"Taxable Amt : {mta:.2f}")
-print(f"Discount Amt : {md:.2f}")
-print(f"GST Amt : {(mta * 0.05):.2f}")
-print(f"Total Amt : {(mta * 0.05) + mta:.2f}")
+for detail in details:
+    detail["amt"] = (detail["price"] * detail["qty"]) - detail["discount"]
+    detail["t_amt"] = f"{detail['amt']:.2f}"
+    detail["d_amt"] = f"{detail['discount']:.2f}"
+    detail["g_amt"] = f"{detail['amt'] * 0.05:.2f}"
+    detail["total_amt"] = f"{detail['amt'] + (detail['amt'] * 0.05):.2f}"
+
+    print(f"{detail["name"]} \t {detail['qty']} \t {detail['d_amt']} \t "
+          f"{detail['amt']:.2f} \t "
+          f"{detail['g_amt']} \t {detail['total_amt']} \t ")
+
+    total_taxable_amt += float(detail["amt"])
+    total_gross_amt += float(detail["g_amt"])+(detail["price"]*detail["qty"])
+    total_discount_amt += float(detail["d_amt"])
+    total_c_gst_amt += (float(detail["g_amt"]) / 2)
+    total_final_amt += float(detail["g_amt"])+detail["amt"]
 
 print()
-print(f"Total Taxable Amt : {(dta+mta+11.43):.2f}")
-print(f"Total CGST : {((dta * 0.05)+(mta * 0.05))/2:.2f}")
+print("Taxes")
+print(f"{total_taxable_amt:.2f} \t {total_c_gst_amt:.2f} \t {total_c_gst_amt:.2f}")
 print()
-print(f"Total Gross Amount : {((dn * d)+(mn * m)+(mta * 0.05)+(dta * 0.05)):.2f}")
+print(f"Total Gross Amount : {total_gross_amt:.2f}")
 print(f"Total Handling Charges : {12:.2f}")
-print(f"Total Discount Amount : {(dd + md):.2f}")
-print(f"Final Amt : {(mta * 0.05) + mta + (dta * 0.05) + dta + 12:.2f}")
+print(f"Total Discount Amount : {total_discount_amt:.2f}")
+# +12 for total handling charges
+print(f"Final Amt : {total_final_amt + 12:.2f}")
