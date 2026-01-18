@@ -13,5 +13,5 @@ urlpatterns = [
     path('sync/upload_file', sv.upload_file),
     path('sync/delete_file', sv.delete_file),
     path('sync/get_pre_signed_url', sv.get_pre_signed_url),
-    path('sync/get_email_content', sv.get_email_content),
+
 ]

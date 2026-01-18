@@ -1,4 +1,5 @@
 import asyncio
+import mimetypes
 import os
 import sys
 from urllib.parse import urljoin
@@ -111,3 +112,14 @@ def build_url(relative_url):
     context_path = configuration_properties.get('context_path', '')
     base_url = configuration_properties.get('base_url', '')
     return urljoin(base_url, context_path + "/" + relative_url) if relative_url else ""
+
+
+def get_content_type(file_name):
+    content_type, _ = mimetypes.guess_type(file_name)
+
+    if content_type:
+        maintype, subtype = content_type.split("/", 1)
+    else:
+        maintype, subtype = "application", "octet-stream"
+
+    return {"maintype": maintype, "subtype": subtype,"content_type": content_type}

@@ -7,9 +7,9 @@ total_final_amt = 0
 
 details = [
     {
-        "name": "KeraBlak",
-        "price": 198.19,
-        "discount": 3.24,
+        "name": "Biodens",
+        "price": 223.06,
+        "discount": 1.03,
         "qty": 12
     }
 ]

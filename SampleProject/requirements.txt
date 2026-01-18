@@ -9,3 +9,4 @@ pillow~=11.0.0
 mysql-connector-python~=9.3.0
 mysqlclient~=2.2.6
 -r prateek_gupta/requirements.txt
+beautifulsoup4

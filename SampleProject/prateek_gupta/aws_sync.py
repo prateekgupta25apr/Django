@@ -1,5 +1,6 @@
 import datetime
 import os
+from urllib.parse import urlparse, unquote
 
 import boto3
 from botocore.config import Config
@@ -162,6 +163,18 @@ def pre_signed_url(file_key, method: str = None):
 
 
 def update_file_name(file_name: str, prefix=""):
+    """Method to include timestamp and replace space with _ in the filename"""
     name, ext = os.path.splitext(file_name)
     return (prefix + name.replace(" ", "_") + "_" +
             str(int(datetime.datetime.now().timestamp() * 1000)) + ext)
+
+
+def extract_file_name(url: str, only_file_name: bool = False):
+    """Method to extract file name from pre-signed url"""
+    parsed = urlparse(url)
+
+    key = unquote(parsed.path.lstrip("/"))
+
+    filename = os.path.basename(key)
+
+    return filename if only_file_name else key

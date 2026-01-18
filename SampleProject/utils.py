@@ -1,13 +1,16 @@
 import json
+from email.mime.image import MIMEImage
 
+import requests
 from asgiref.sync import sync_to_async
+from django.core.mail import EmailMultiAlternatives
 from django.http import HttpResponse
 from django.db import connections, transaction
 import mysql.connector
 import django
 
 
-def get_api_response(body,status):
+def get_api_response(body, status):
     """Method to return generic JSON response for an API"""
     try:
         if type(body) in [dict, list]:
@@ -21,25 +24,25 @@ def get_api_response(body,status):
 
 def get_success_response(body):
     """Method to return generic JSON response for an API"""
-    return get_api_response(body,200)
+    return get_api_response(body, 200)
 
 
 def get_error_response(exception, request=None):
     """Method to return response for errors"""
     from prateek_gupta.LogManager import logger
     from prateek_gupta.exceptions import log_error, ServiceException
-    exception: ServiceException=exception
+    exception: ServiceException = exception
 
     # Logging error
     log_error()
 
     if request is not None:
-        logger.error("Error while responding the api : "+request.path)
+        logger.error("Error while responding the api : " + request.path)
 
     response = dict()
     if exception.status_id is not None:
         response["message"] = exception.message
-        return get_api_response(response,exception.status_id)
+        return get_api_response(response, exception.status_id)
     else:
         response["message"] = exception.message
         return get_api_response(response,
@@ -112,3 +115,88 @@ def validate_user_login(request):
     if request.user_context.user_id <= 0:
         raise ServiceException(exception_type=ServiceException.ExceptionType.LOGIN_REQUIRED)
 
+
+def send_email_sync(from_email: str, to_email: str, subject: str,
+                    content: str, attachments: str = None):
+    from prateek_gupta.emails_sync import (
+        get_plain_content, get_html_content_and_inline_attachments)
+    from prateek_gupta.utils import get_content_type
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=get_plain_content(content),
+        from_email=from_email,
+        to=[to_email],
+    )
+
+    html_content, inline_attachment = get_html_content_and_inline_attachments(content)
+    email.attach_alternative(html_content, "text/html")
+
+    # Adding inline attachments
+    for attachment in inline_attachment:
+        response = requests.get(attachment["file_url"])
+        if response.status_code == 200:
+            mime_image = MIMEImage(response.content)
+            mime_image.add_header("Content-ID", attachment["cid"])
+            mime_image.add_header(
+                "Content-Disposition", "inline",
+                filename=attachment["file_key"]
+            )
+            email.attach(mime_image)
+
+    # Adding normal attachment if there
+    if attachments:
+        attachments = json.loads(attachments)
+        for attachment in attachments:
+            response = requests.get(attachment["file_url"])
+            content_type_details = get_content_type(attachment["file_name"])
+            email.attach(
+                filename=attachment["file_name"],
+                content=response.content,
+                mimetype=f"{content_type_details["maintype"]}/"
+                         f"{content_type_details["subtype"]}",
+            )
+    email.send()
+
+
+async def send_email_async(
+        from_email: str, to_email: str, subject: str, content: str,
+        attachments: str = None):
+    from prateek_gupta.emails_sync import (
+        get_plain_content, get_html_content_and_inline_attachments)
+    from prateek_gupta.utils import get_content_type
+    from prateek_gupta.utils import execute_as_async
+    email = EmailMultiAlternatives(
+        subject=subject,
+        body=get_plain_content(content),
+        from_email=from_email,
+        to=[to_email],
+    )
+
+    html_content, inline_attachment = get_html_content_and_inline_attachments(content)
+    email.attach_alternative(html_content, "text/html")
+
+    # Adding inline attachments
+    for attachment in inline_attachment:
+        response = await execute_as_async(requests.get, attachment["file_url"])
+        if response.status_code == 200:
+            mime_image = MIMEImage(response.content)
+            mime_image.add_header("Content-ID", attachment["cid"])
+            mime_image.add_header(
+                "Content-Disposition", "inline", filename=attachment["file_key"]
+            )
+            email.attach(mime_image)
+
+    # Adding normal attachment if there
+    if attachments:
+        attachments = json.loads(attachments)
+        for attachment in attachments:
+            response = await execute_as_async(requests.get, attachment["file_url"])
+            if response.status_code == 200:
+                content_type_details = get_content_type(attachment["file_name"])
+                email.attach(
+                    filename=attachment["file_name"],
+                    content=response.content,
+                    mimetype=f"{content_type_details["maintype"]}/"
+                             f"{content_type_details["subtype"]}",
+                )
+    email.send()

@@ -102,7 +102,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': prateek_gupta.configuration_properties['db_default_schema'],
         'USER': prateek_gupta.configuration_properties['db_user_name'],
-        'PASSWORD':prateek_gupta. configuration_properties['db_password'],
+        'PASSWORD': prateek_gupta.configuration_properties['db_password'],
         'HOST': prateek_gupta.configuration_properties['db_host'],
         'PORT': '3306',
     }
@@ -149,6 +149,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 COOKIE_NAME = "pg"
 COOKIE_SECRET = "Pg25Pg25Pg25Pg25Pg25Pg25Pg25Pg25Pg25Pg25Pg25Pg25Pg25Pg25Pg25Pg25"
+
+if prateek_gupta.configuration_properties.get("EMAILS_SEND_GRID_ENABLED", ""):
+    EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+    SENDGRID_API_KEY = prateek_gupta.configuration_properties.get(
+        "EMAILS_SEND_GRID_PASSWORD", "")
+    SENDGRID_SANDBOX_MODE_IN_DEBUG = False
+else:
+    EMAIL_HOST = prateek_gupta.configuration_properties.get("EMAILS_SMTP_SERVER", "")
+    EMAIL_USE_TLS = True
+    EMAIL_PORT = prateek_gupta.configuration_properties.get("EMAILS_SMTP_PORT", "")
+    EMAIL_HOST_USER = prateek_gupta.configuration_properties.get(
+        "EMAILS_SMTP_USERNAME", "")
+    EMAIL_HOST_PASSWORD = prateek_gupta.configuration_properties.get(
+        "EMAILS_SMTP_PASSWORD", "")
 
 from prateek_gupta.UvicornLogs import uvicorn_logs_config
 
