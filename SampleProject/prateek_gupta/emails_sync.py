@@ -56,8 +56,7 @@ def get(message_id=None, file_path=None, fetch_file_url=False):
             elif content_type == "text/plain" and disposition is None:
                 email_details['text_body'] = part.get_content()
     else:
-        if msg.get_content_type() == "text/html":
-            email_details["html_body"] = msg.get_content()
+        email_details["text_body"] = msg.get_content()
 
     attachments = []
 
@@ -179,3 +178,94 @@ def get_html_content_and_inline_attachments(html_content: str):
         inline_attachments.append({
             "file_key": file_key, "file_url": img_url, "cid": cid, "ext": ext})
     return str(parser), inline_attachments
+
+
+def process_email(
+        message_id=None, file_path=None, to_email: str = None):
+    bucket_name = get_bucket_name()
+    if not bucket_name:
+        raise ServiceException(message="Couldn't get bucket name")
+
+    email_content = None
+    if message_id:
+        # Fetch the email file from S3
+        file_key = f"emails/{message_id}"
+        email_file = get_s3_client().get_object(Bucket=bucket_name, Key=file_key)
+        email_content = email_file['Body'].read().decode('utf-8')
+
+    if file_path:
+        file_details = open(file_path, "r")
+        email_content = file_details.read()
+
+    if not email_content:
+        raise ServiceException(message="Couldn't get email content")
+
+    # Parse the email content
+    original = email.message_from_string(email_content, policy=email.policy.default)
+    from_email = "prateek.gupta25apr@gmail.com"
+    if not to_email:
+        to_email = "prateek.gupta25apr@gmail.com"
+    msg = EmailMessage()
+    msg["From"] = from_email
+    msg["To"] = to_email
+    msg["Subject"] = "Email Received"
+
+    text_body = (f"Received an email from {original.get("From", "")} "
+                 f"with subject {original.get("Subject", "")}")
+    html_body = (f"<p>Received an email from <b>{original.get("From", "")}</b> "
+                 f"with subject <b>{original.get("Subject", "")}</b></p>")
+
+    if original.is_multipart():
+        for part in original.walk():
+            content_type = part.get_content_type()
+            disposition = part.get_content_disposition()
+
+            if disposition is None:
+                if content_type == "text/plain":
+                    text_body += part.get_content()
+                elif content_type == "text/html":
+                    html_body += part.get_content()
+    else:
+        text_body += original.get_content()
+
+    # Set body correctly
+    if html_body:
+        msg.set_content(text_body or " ")
+        msg.add_alternative(html_body, subtype="html")
+    else:
+        msg.set_content(text_body or "")
+
+    for part in original.iter_attachments():
+        if part.get_content_disposition() == "inline":
+            msg.add_attachment(
+                part.get_content(),
+                maintype=part.get_content_maintype(),
+                subtype=part.get_content_subtype(),
+                cid=part["Content-ID"],
+                filename=part.get_filename()
+            )
+        else:
+            msg.add_attachment(
+                part.get_content(),
+                maintype=part.get_content_maintype(),
+                subtype=part.get_content_subtype(),
+                filename=part.get_filename()
+            )
+
+    if configuration_properties.get("EMAILS_SEND_GRID_ENABLED", ""):
+        server = configuration_properties.get("EMAILS_SEND_GRID_SERVER")
+        port = int(configuration_properties.get("EMAILS_SEND_GRID_PORT"))
+        username = configuration_properties.get("EMAILS_SEND_GRID_USERNAME")
+        password = configuration_properties.get("EMAILS_SEND_GRID_PASSWORD")
+    else:
+        server = configuration_properties.get("EMAILS_SMTP_SERVER")
+        port = int(configuration_properties.get("EMAILS_SMTP_PORT"))
+        username = configuration_properties.get("EMAILS_SMTP_USERNAME")
+        password = configuration_properties.get("EMAILS_SMTP_PASSWORD")
+
+    # Send email
+    with smtplib.SMTP(server, port) as server:
+        server.ehlo()
+        server.starttls()
+        server.login(username, password)
+        server.send_message(msg)
