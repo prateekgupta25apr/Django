@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 from prateek_gupta import configuration_properties
 from prateek_gupta.aws_sync import (
     get_bucket_name, get_s3_client, upload, pre_signed_url, extract_file_name,
-    update_file_name
+    update_file_name, get_file_content_in_bytes
 )
 from prateek_gupta.exceptions import ServiceException
 from prateek_gupta.utils import get_content_type
@@ -123,14 +123,23 @@ def send(from_email: str, to_email: str, subject: str,
     if attachments:
         attachments = json.loads(attachments)
         for attachment in attachments:
-            response = requests.get(attachment["file_url"])
-            content_type_details = get_content_type(attachment["file_name"])
-            msg.add_attachment(
-                response.content,
-                maintype=content_type_details["maintype"],
-                subtype=content_type_details["subtype"],
-                filename=attachment["file_name"]
-            )
+            if attachment.get("file_key", ""):
+                file_content = get_file_content_in_bytes(attachment["file_key"])
+            else:
+                response = requests.get(attachment["file_url"])
+                if response.status_code == 200:
+                    file_content = response.content
+                else:
+                    file_content = None
+
+            if file_content:
+                content_type_details = get_content_type(attachment["file_name"])
+                msg.add_attachment(
+                    file_content,
+                    maintype=content_type_details["maintype"],
+                    subtype=content_type_details["subtype"],
+                    filename=attachment["file_name"]
+                )
 
     if configuration_properties.get("EMAILS_SEND_GRID_ENABLED", ""):
         server = configuration_properties.get("EMAILS_SEND_GRID_SERVER")

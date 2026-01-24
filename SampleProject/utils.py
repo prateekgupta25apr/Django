@@ -116,10 +116,11 @@ def validate_user_login(request):
         raise ServiceException(exception_type=ServiceException.ExceptionType.LOGIN_REQUIRED)
 
 
-def send_email_sync(from_email: str, to_email: str, subject: str,
-                    content: str, attachments: str = None):
+def send_email_sync(
+        from_email: str, to_email: str, subject: str, content: str, attachments: str = None):
     from prateek_gupta.emails_sync import (
-        get_plain_content, get_html_content_and_inline_attachments)
+        get_plain_content, get_html_content_and_inline_attachments,
+        get_file_content_in_bytes)
     from prateek_gupta.utils import get_content_type
     email = EmailMultiAlternatives(
         subject=subject,
@@ -147,22 +148,32 @@ def send_email_sync(from_email: str, to_email: str, subject: str,
     if attachments:
         attachments = json.loads(attachments)
         for attachment in attachments:
-            response = requests.get(attachment["file_url"])
-            content_type_details = get_content_type(attachment["file_name"])
-            email.attach(
-                filename=attachment["file_name"],
-                content=response.content,
-                mimetype=f"{content_type_details["maintype"]}/"
-                         f"{content_type_details["subtype"]}",
-            )
+            if attachment.get("file_key", ""):
+                file_content = get_file_content_in_bytes(attachment["file_key"])
+            else:
+                response = requests.get(attachment["file_url"])
+                if response.status_code == 200:
+                    file_content = response.content
+                else:
+                    file_content = None
+
+            if file_content:
+                content_type_details = get_content_type(attachment["file_name"])
+                email.attach(
+                    filename=attachment["file_name"],
+                    content=file_content,
+                    mimetype=f"{content_type_details["maintype"]}/"
+                             f"{content_type_details["subtype"]}",
+                )
     email.send()
 
 
 async def send_email_async(
         from_email: str, to_email: str, subject: str, content: str,
         attachments: str = None):
-    from prateek_gupta.emails_sync import (
-        get_plain_content, get_html_content_and_inline_attachments)
+    from prateek_gupta.emails_async import (
+        get_plain_content, get_html_content_and_inline_attachments,
+        get_file_content_in_bytes)
     from prateek_gupta.utils import get_content_type
     from prateek_gupta.utils import execute_as_async
     email = EmailMultiAlternatives(
@@ -190,12 +201,20 @@ async def send_email_async(
     if attachments:
         attachments = json.loads(attachments)
         for attachment in attachments:
-            response = await execute_as_async(requests.get, attachment["file_url"])
-            if response.status_code == 200:
+            if attachment.get("file_key", ""):
+                file_content = await get_file_content_in_bytes(attachment["file_key"])
+            else:
+                response = await execute_as_async(requests.get, attachment["file_url"])
+                if response.status_code == 200:
+                    file_content = response.content
+                else:
+                    file_content = None
+
+            if file_content:
                 content_type_details = get_content_type(attachment["file_name"])
                 email.attach(
                     filename=attachment["file_name"],
-                    content=response.content,
+                    content=file_content,
                     mimetype=f"{content_type_details["maintype"]}/"
                              f"{content_type_details["subtype"]}",
                 )
