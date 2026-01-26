@@ -87,8 +87,7 @@ def execute_thread_query(query, method=None):
         with (mysql.connector.connect(
                 host=configuration_properties['db_host'],
                 user=configuration_properties['db_user_name'],
-                password=configuration_properties['db_password']) as
-        manual_connection):
+                password=configuration_properties['db_password']) as manual_connection):
             with manual_connection.cursor() as manual_cursor:
                 manual_cursor.execute(query)
 
@@ -126,7 +125,7 @@ def send_email_sync(
         subject=subject,
         body=get_plain_content(content),
         from_email=from_email,
-        to=[to_email],
+        to=to_email.split(","),
     )
 
     html_content, inline_attachment = get_html_content_and_inline_attachments(content)
@@ -180,7 +179,7 @@ async def send_email_async(
         subject=subject,
         body=get_plain_content(content),
         from_email=from_email,
-        to=[to_email],
+        to=to_email.split(","),
     )
 
     html_content, inline_attachment = get_html_content_and_inline_attachments(content)
