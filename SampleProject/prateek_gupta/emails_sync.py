@@ -219,10 +219,10 @@ def process_email(
     msg["To"] = to_email
     msg["Subject"] = "Email Received"
 
-    text_body = (f"Received an email from {original.get("From", "")} "
-                 f"with subject {original.get("Subject", "")}")
-    html_body = (f"<p>Received an email from <b>{original.get("From", "")}</b> "
-                 f"with subject <b>{original.get("Subject", "")}</b></p>")
+    text_body = (f"Received an email from {original.get('From', '')} "
+                 f"with subject {original.get('Subject', '')}")
+    html_body = (f"<p>Received an email from <b>{original.get('From', '')}</b> "
+                 f"with subject <b>{original.get('Subject', '')}</b></p>")
 
     if original.is_multipart():
         for part in original.walk():

@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'aws',
     'documents',
     'open_search',
+    'cryptography_module'
 ]
 
 MIDDLEWARE = [

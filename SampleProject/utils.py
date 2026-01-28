@@ -161,8 +161,8 @@ def send_email_sync(
                 email.attach(
                     filename=attachment["file_name"],
                     content=file_content,
-                    mimetype=f"{content_type_details["maintype"]}/"
-                             f"{content_type_details["subtype"]}",
+                    mimetype=f"{content_type_details['maintype']}/"
+                             f"{content_type_details['subtype']}",
                 )
     email.send()
 
@@ -214,7 +214,7 @@ async def send_email_async(
                 email.attach(
                     filename=attachment["file_name"],
                     content=file_content,
-                    mimetype=f"{content_type_details["maintype"]}/"
-                             f"{content_type_details["subtype"]}",
+                    mimetype=f"{content_type_details['maintype']}/"
+                             f"{content_type_details['subtype']}",
                 )
     email.send()

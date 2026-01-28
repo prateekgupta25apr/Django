@@ -30,4 +30,5 @@ urlpatterns = [
     path(context_path + '/redis/', include("redis_module.redis_urls")),
     path(context_path + '/open_search/', include("open_search.open_search_urls")),
     path(context_path + '/emails/', include("emails.emails_urls")),
+    path(context_path + '/cryptography/', include("cryptography_module.cryptography_urls")),
 ]
