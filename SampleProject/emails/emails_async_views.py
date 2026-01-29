@@ -39,7 +39,7 @@ async def send_email(request):
 
         if native:
             await send_email_async(
-                from_email=from_email, to_email=to_email, subject=subject,
+                from_email=from_email, to_emails=to_email, subject=subject,
                 content=content, attachments=attachments)
         else:
             await send(

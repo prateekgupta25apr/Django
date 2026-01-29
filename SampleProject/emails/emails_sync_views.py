@@ -38,7 +38,7 @@ def send_email(request):
         native = request.POST.get('native', False)
 
         if native:
-            send_email_sync(from_email=from_email, to_email=to_email, subject=subject,
+            send_email_sync(from_email=from_email, to_emails=to_email, subject=subject,
                             content=content, attachments=attachments)
         else:
             send(

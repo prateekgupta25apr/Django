@@ -116,7 +116,8 @@ def validate_user_login(request):
 
 
 def send_email_sync(
-        from_email: str, to_email: str, subject: str, content: str, attachments: str = None):
+        from_email: str, to_emails: str, subject: str, content: str,
+        attachments: str = None):
     from prateek_gupta.emails_sync import (
         get_plain_content, get_html_content_and_inline_attachments,
         get_file_content_in_bytes)
@@ -125,7 +126,7 @@ def send_email_sync(
         subject=subject,
         body=get_plain_content(content),
         from_email=from_email,
-        to=to_email.split(","),
+        to=to_emails.split(","),
     )
 
     html_content, inline_attachment = get_html_content_and_inline_attachments(content)
@@ -133,9 +134,17 @@ def send_email_sync(
 
     # Adding inline attachments
     for attachment in inline_attachment:
-        response = requests.get(attachment["file_url"])
-        if response.status_code == 200:
-            mime_image = MIMEImage(response.content)
+        if "https://" not in attachment.get("file_url", ""):
+            file_content = get_file_content_in_bytes(attachment["file_url"])
+        else:
+            response = requests.get(attachment["file_url"])
+            if response.status_code == 200:
+                file_content = response.content
+            else:
+                file_content = None
+
+        if file_content:
+            mime_image = MIMEImage(file_content)
             mime_image.add_header("Content-ID", attachment["cid"])
             mime_image.add_header(
                 "Content-Disposition", "inline",
@@ -168,7 +177,7 @@ def send_email_sync(
 
 
 async def send_email_async(
-        from_email: str, to_email: str, subject: str, content: str,
+        from_email: str, to_emails: str, subject: str, content: str,
         attachments: str = None):
     from prateek_gupta.emails_async import (
         get_plain_content, get_html_content_and_inline_attachments,
@@ -179,7 +188,7 @@ async def send_email_async(
         subject=subject,
         body=get_plain_content(content),
         from_email=from_email,
-        to=to_email.split(","),
+        to=to_emails.split(","),
     )
 
     html_content, inline_attachment = get_html_content_and_inline_attachments(content)
@@ -187,9 +196,17 @@ async def send_email_async(
 
     # Adding inline attachments
     for attachment in inline_attachment:
-        response = await execute_as_async(requests.get, attachment["file_url"])
-        if response.status_code == 200:
-            mime_image = MIMEImage(response.content)
+        if "https://" not in attachment.get("file_url", ""):
+            file_content = await get_file_content_in_bytes(attachment["file_url"])
+        else:
+            response = await execute_as_async(requests.get, attachment["file_url"])
+            if response.status_code == 200:
+                file_content = response.content
+            else:
+                file_content = None
+
+        if file_content:
+            mime_image = MIMEImage(file_content)
             mime_image.add_header("Content-ID", attachment["cid"])
             mime_image.add_header(
                 "Content-Disposition", "inline", filename=attachment["file_key"]

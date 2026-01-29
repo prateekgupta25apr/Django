@@ -108,11 +108,19 @@ def send(from_email: str, to_email: str, subject: str,
 
     # Adding inline attachments
     for attachment in inline_attachment:
-        response = requests.get(attachment["file_url"])
-        if response.status_code == 200:
+        if "https://" not in attachment.get("file_url", ""):
+            file_content = get_file_content_in_bytes(attachment["file_url"])
+        else:
+            response = requests.get(attachment["file_url"])
+            if response.status_code == 200:
+                file_content = response.content
+            else:
+                file_content = None
+
+        if file_content:
             content_type_details = get_content_type(attachment["file_key"])
             msg.add_related(
-                response.content,
+                file_content,
                 maintype=content_type_details["maintype"],
                 subtype=content_type_details["subtype"],
                 cid=attachment["cid"],

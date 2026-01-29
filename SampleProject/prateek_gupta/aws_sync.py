@@ -169,11 +169,15 @@ def update_file_name(file_name: str, prefix=""):
             str(int(datetime.datetime.now().timestamp() * 1000)) + ext)
 
 
-def extract_file_name(url: str, only_file_name: bool = False):
-    """Method to extract file name from pre-signed url"""
-    parsed = urlparse(url)
+def extract_file_name(
+        url_or_file_key: str, only_file_name: bool = False):
+    """Method to extract file name from pre-signed url or file-key"""
+    if "https://" in url_or_file_key:
+        parsed = urlparse(url_or_file_key)
 
-    key = unquote(parsed.path.lstrip("/"))
+        key = unquote(parsed.path.lstrip("/"))
+    else:
+        key = url_or_file_key
 
     filename = os.path.basename(key)
 
