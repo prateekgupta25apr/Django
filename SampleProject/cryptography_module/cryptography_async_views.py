@@ -6,11 +6,11 @@ from utils import get_success_response, get_error_response
 
 
 @request_mapping("POST")
-def des_encrypt_request(request):
+async def des_encrypt_request(request):
     logger.info("Entering des_encrypt_request()")
     # noinspection PyBroadException
     try:
-        module_lock_check("CRYPTOGRAPHY_ENABLED", "S")
+        module_lock_check("CRYPTOGRAPHY_ENABLED", "A")
 
         plain_text = request.POST.get("plain_text", "")
         encrypted_data = des_encrypt(plain_text)
@@ -25,11 +25,11 @@ def des_encrypt_request(request):
 
 
 @request_mapping("POST")
-def des_decrypt_request(request):
+async def des_decrypt_request(request):
     logger.info("Entering des_decrypt_request()")
     # noinspection PyBroadException
     try:
-        module_lock_check("CRYPTOGRAPHY_ENABLED", "S")
+        module_lock_check("CRYPTOGRAPHY_ENABLED", "A")
 
         encrypted_text = request.POST.get("encrypted_text", "")
         if encrypted_text:
