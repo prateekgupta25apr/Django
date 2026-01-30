@@ -1,5 +1,5 @@
 from prateek_gupta.LogManager import logger
-from prateek_gupta.cryptography_sync import des_encrypt, des_decrypt
+from prateek_gupta.cryptography import des_encrypt, des_decrypt
 from prateek_gupta.exceptions import module_lock_check, ServiceException
 from prateek_gupta.utils import request_mapping
 from utils import get_success_response, get_error_response
