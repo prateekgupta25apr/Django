@@ -110,14 +110,18 @@ async def send(from_email: str, to_email: str, subject: str,
 
     # Adding inline attachments
     for attachment in inline_attachment:
-        if "https://" not in attachment.get("file_url", ""):
-            file_content = await get_file_content_in_bytes(attachment["file_url"])
-        else:
-            response = await execute_as_async(requests.get, attachment["file_url"])
-            if response.status_code == 200:
-                file_content = response.content
+        # noinspection PyBroadException
+        try:
+            if "https://" not in attachment.get("file_url", ""):
+                file_content = await get_file_content_in_bytes(attachment["file_url"])
             else:
-                file_content = None
+                response = await execute_as_async(requests.get, attachment["file_url"])
+                if response.status_code == 200:
+                    file_content = response.content
+                else:
+                    file_content = None
+        except Exception:
+            file_content = None
 
         if file_content:
             content_type_details = get_content_type(attachment["file_key"])
@@ -135,14 +139,18 @@ async def send(from_email: str, to_email: str, subject: str,
     if attachments:
         attachments = json.loads(attachments)
         for attachment in attachments:
-            if attachment.get("file_key", ""):
-                file_content = await get_file_content_in_bytes(attachment["file_key"])
-            else:
-                response = await execute_as_async(requests.get, attachment["file_url"])
-                if response.status_code == 200:
-                    file_content = response.content
+            # noinspection PyBroadException
+            try:
+                if attachment.get("file_key", ""):
+                    file_content = await get_file_content_in_bytes(attachment["file_key"])
                 else:
-                    file_content = None
+                    response = await execute_as_async(requests.get, attachment["file_url"])
+                    if response.status_code == 200:
+                        file_content = response.content
+                    else:
+                        file_content = None
+            except Exception:
+                file_content = None
 
             if file_content:
                 content_type_details = get_content_type(attachment["file_name"])

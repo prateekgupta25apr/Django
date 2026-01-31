@@ -123,6 +123,7 @@ def validate_user_login(request):
 def send_email_sync(
         from_email: str, to_emails: str, subject: str, content: str,
         attachments: str = None):
+    failed_attachments = []
     from prateek_gupta.emails_sync import (
         get_plain_content, get_html_content_and_inline_attachments,
         get_file_content_in_bytes)
@@ -139,14 +140,18 @@ def send_email_sync(
 
     # Adding inline attachments
     for attachment in inline_attachment:
-        if "https://" not in attachment.get("file_url", ""):
-            file_content = get_file_content_in_bytes(attachment["file_url"])
-        else:
-            response = requests.get(attachment["file_url"])
-            if response.status_code == 200:
-                file_content = response.content
+        # noinspection PyBroadException
+        try:
+            if "https://" not in attachment.get("file_url", ""):
+                file_content = get_file_content_in_bytes(attachment["file_url"])
             else:
-                file_content = None
+                response = requests.get(attachment["file_url"])
+                if response.status_code == 200:
+                    file_content = response.content
+                else:
+                    file_content = None
+        except Exception:
+            file_content = None
 
         if file_content:
             mime_image = MIMEImage(file_content)
@@ -156,19 +161,25 @@ def send_email_sync(
                 filename=attachment["file_key"]
             )
             email.attach(mime_image)
+        else:
+            failed_attachments.append(attachment["file_key"])
 
     # Adding normal attachment if there
     if attachments:
         attachments = json.loads(attachments)
         for attachment in attachments:
-            if attachment.get("file_key", ""):
-                file_content = get_file_content_in_bytes(attachment["file_key"])
-            else:
-                response = requests.get(attachment["file_url"])
-                if response.status_code == 200:
-                    file_content = response.content
+            # noinspection PyBroadException
+            try:
+                if attachment.get("file_key", ""):
+                    file_content = get_file_content_in_bytes(attachment["file_key"])
                 else:
-                    file_content = None
+                    response = requests.get(attachment["file_url"])
+                    if response.status_code == 200:
+                        file_content = response.content
+                    else:
+                        file_content = None
+            except Exception:
+                file_content = None
 
             if file_content:
                 content_type_details = get_content_type(attachment["file_name"])
@@ -178,7 +189,10 @@ def send_email_sync(
                     mimetype=f"{content_type_details['maintype']}/"
                              f"{content_type_details['subtype']}",
                 )
+            else:
+                failed_attachments.append(attachment["file_name"])
     email.send()
+    return failed_attachments
 
 
 async def send_email_async(
@@ -202,14 +216,18 @@ async def send_email_async(
 
     # Adding inline attachments
     for attachment in inline_attachment:
-        if "https://" not in attachment.get("file_url", ""):
-            file_content = await get_file_content_in_bytes(attachment["file_url"])
-        else:
-            response = await execute_as_async(requests.get, attachment["file_url"])
-            if response.status_code == 200:
-                file_content = response.content
+        # noinspection PyBroadException
+        try:
+            if "https://" not in attachment.get("file_url", ""):
+                file_content = await get_file_content_in_bytes(attachment["file_url"])
             else:
-                file_content = None
+                response = await execute_as_async(requests.get, attachment["file_url"])
+                if response.status_code == 200:
+                    file_content = response.content
+                else:
+                    file_content = None
+        except Exception:
+            file_content = None
 
         if file_content:
             mime_image = MIMEImage(file_content)
@@ -225,14 +243,18 @@ async def send_email_async(
     if attachments:
         attachments = json.loads(attachments)
         for attachment in attachments:
-            if attachment.get("file_key", ""):
-                file_content = await get_file_content_in_bytes(attachment["file_key"])
-            else:
-                response = await execute_as_async(requests.get, attachment["file_url"])
-                if response.status_code == 200:
-                    file_content = response.content
+            # noinspection PyBroadException
+            try:
+                if attachment.get("file_key", ""):
+                    file_content = await get_file_content_in_bytes(attachment["file_key"])
                 else:
-                    file_content = None
+                    response = await execute_as_async(requests.get, attachment["file_url"])
+                    if response.status_code == 200:
+                        file_content = response.content
+                    else:
+                        file_content = None
+            except Exception:
+                file_content = None
 
             if file_content:
                 content_type_details = get_content_type(attachment["file_name"])
