@@ -38,18 +38,19 @@ async def send_email(request):
         native = request.POST.get('native', False)
 
         if native:
-            await send_email_async(
+            failed_attachments = await send_email_async(
                 from_email=from_email, to_emails=to_email, subject=subject,
                 content=content, attachments=attachments)
         else:
-            await send(
+            failed_attachments = await send(
                 from_email=from_email, to_email=to_email, subject=subject,
                 content=content, attachments=attachments)
-        response = get_success_response({"message": "Successfully sent email"})
+        response = get_success_response(
+            {"message": "Successfully sent email", "failed_attachments": failed_attachments})
     except ServiceException as e:
         response = get_error_response(e)
-    except Exception:
-        response = get_error_response(ServiceException())
+    except Exception as e:
+        response = get_error_response(e)
     return response
 
 

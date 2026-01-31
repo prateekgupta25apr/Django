@@ -31,7 +31,12 @@ def get_error_response(exception, request=None):
     """Method to return response for errors"""
     from prateek_gupta.LogManager import logger
     from prateek_gupta.exceptions import log_error, ServiceException
-    exception: ServiceException = exception
+    if isinstance(exception, ServiceException):
+        message = exception.message
+        status_id = exception.status_id
+    else:
+        message = str(exception)
+        status_id = None
 
     # Logging error
     log_error()
@@ -40,11 +45,11 @@ def get_error_response(exception, request=None):
         logger.error("Error while responding the api : " + request.path)
 
     response = dict()
-    if exception.status_id is not None:
-        response["message"] = exception.message
-        return get_api_response(response, exception.status_id)
+    if status_id is not None:
+        response["message"] = message
+        return get_api_response(response, status_id)
     else:
-        response["message"] = exception.message
+        response["message"] = message
         return get_api_response(response,
                                 ServiceException.ExceptionType.UNKNOWN_ERROR.value)
 
@@ -179,6 +184,7 @@ def send_email_sync(
 async def send_email_async(
         from_email: str, to_emails: str, subject: str, content: str,
         attachments: str = None):
+    failed_attachments = []
     from prateek_gupta.emails_async import (
         get_plain_content, get_html_content_and_inline_attachments,
         get_file_content_in_bytes)
@@ -212,6 +218,8 @@ async def send_email_async(
                 "Content-Disposition", "inline", filename=attachment["file_key"]
             )
             email.attach(mime_image)
+        else:
+            failed_attachments.append(attachment["file_key"])
 
     # Adding normal attachment if there
     if attachments:
@@ -234,4 +242,7 @@ async def send_email_async(
                     mimetype=f"{content_type_details['maintype']}/"
                              f"{content_type_details['subtype']}",
                 )
+            else:
+                failed_attachments.append(attachment["file_name"])
     email.send()
+    return failed_attachments

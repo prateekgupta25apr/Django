@@ -90,6 +90,7 @@ async def get(message_id=None, file_path=None, fetch_file_url=False):
 
 async def send(from_email: str, to_email: str, subject: str,
                content: str, attachments: str = None):
+    failed_attachments = []
     msg = EmailMessage()
     msg["From"] = from_email
     msg["To"] = to_email
@@ -127,6 +128,8 @@ async def send(from_email: str, to_email: str, subject: str,
                 cid=attachment["cid"],
                 filename=attachment["file_key"]
             )
+        else:
+            failed_attachments.append(attachment["file_key"])
 
     # Adding normal attachment if there
     if attachments:
@@ -149,6 +152,8 @@ async def send(from_email: str, to_email: str, subject: str,
                     subtype=content_type_details["subtype"],
                     filename=attachment["file_name"]
                 )
+            else:
+                failed_attachments.append(attachment["file_name"])
 
     if configuration_properties.get("EMAILS_SEND_GRID_ENABLED", ""):
         server = configuration_properties.get("EMAILS_SEND_GRID_SERVER")
@@ -166,6 +171,7 @@ async def send(from_email: str, to_email: str, subject: str,
         server.starttls()
         server.login(username, password)
         server.send_message(msg)
+    return failed_attachments
 
 
 def get_plain_content(html_content: str):
