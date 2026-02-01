@@ -38,12 +38,14 @@ def upload_file(request):
         module_lock_check("AWS_ENABLE", "S")
 
         file = request.FILES['file']
-        file_key = update_file_name(file.name)
+        prefix = request.POST.get('prefix', "")
+        file_key = update_file_name(file.name, prefix)
         upload(file, file_key=file_key)
         response = dict()
         response['message'] = "Successfully uploaded the file : " + file.name
         response['file_name'] = file.name
         response['file_key'] = file_key
+        response['pre_signed_url'] = pre_signed_url(file_key, None)
         response = get_success_response(response)
     except ServiceException as e:
         response = get_error_response(e)
