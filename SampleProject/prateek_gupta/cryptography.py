@@ -1,3 +1,4 @@
+import hashlib
 from io import BytesIO
 
 from Crypto.Cipher import DES
@@ -63,3 +64,7 @@ def des_decrypt(encrypted_data):
 
     # Convert bytes to string
     return plaintext_bytes.decode("utf-8")
+
+
+def hash_sha_256(plain_text):
+    return hashlib.sha256(plain_text.encode("utf-8")).hexdigest()
