@@ -1,5 +1,5 @@
 from prateek_gupta.LogManager import logger
-from prateek_gupta.cryptography import des_encrypt, des_decrypt, hash_sha_256
+from prateek_gupta.cryptography import des_encrypt, des_decrypt, hash_sha_256, hmac_sha_256
 from prateek_gupta.exceptions import module_lock_check, ServiceException
 from prateek_gupta.utils import request_mapping
 from utils import get_success_response, get_error_response
@@ -53,13 +53,13 @@ async def hash_sha_256_request(request):
     logger.info("Entering hash_sha_256_request()")
     # noinspection PyBroadException
     try:
-        module_lock_check("CRYPTOGRAPHY_ENABLED", "S")
+        module_lock_check("CRYPTOGRAPHY_ENABLED", "A")
 
         plain_text = request.POST.get("plain_text", "")
         if plain_text:
             hashed_data = hash_sha_256(plain_text)
             response = get_success_response({"message": "Successfully hashed data",
-                                             "Hashed Data": hashed_data})
+                                             "Hashed Data(Hex)": hashed_data})
         else:
             raise ServiceException(
                 exception_type=ServiceException.ExceptionType.MISSING_REQUIRED_PARAMETERS)
@@ -68,4 +68,27 @@ async def hash_sha_256_request(request):
     except Exception:
         response = get_error_response(ServiceException())
     logger.info("Existing hash_sha_256_request()")
+    return response
+
+
+@request_mapping("POST")
+async def hmac_sha_256_request(request):
+    logger.info("Entering hmac_sha_256_request()")
+    # noinspection PyBroadException
+    try:
+        module_lock_check("CRYPTOGRAPHY_ENABLED", "A")
+
+        plain_text = request.POST.get("plain_text", "")
+        if plain_text:
+            hashed_data = hmac_sha_256(plain_text)
+            response = get_success_response({"message": "Successfully generated HMac",
+                                             "HMac(Hex)": hashed_data})
+        else:
+            raise ServiceException(
+                exception_type=ServiceException.ExceptionType.MISSING_REQUIRED_PARAMETERS)
+    except ServiceException as e:
+        response = get_error_response(e)
+    except Exception:
+        response = get_error_response(ServiceException())
+    logger.info("Existing hmac_sha_256_request()")
     return response

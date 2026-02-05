@@ -1,4 +1,5 @@
 import hashlib
+import hmac
 from io import BytesIO
 
 from Crypto.Cipher import DES
@@ -68,3 +69,12 @@ def des_decrypt(encrypted_data):
 
 def hash_sha_256(plain_text):
     return hashlib.sha256(plain_text.encode("utf-8")).hexdigest()
+
+
+def hmac_sha_256(plain_text):
+    # Getting secret key in bytes
+    secret_key = configuration_properties.get("CRYPTOGRAPHY_SECRET_KEY").encode("utf-8")
+
+    # Generating bytes for plain text
+    plain_text_bytes = plain_text.encode("utf-8")
+    return hmac.new(secret_key, plain_text_bytes, hashlib.sha256).hexdigest()
