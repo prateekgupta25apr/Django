@@ -2,7 +2,7 @@ import hashlib
 import hmac
 from io import BytesIO
 
-from Crypto.Cipher import DES
+from Crypto.Cipher import DES, AES
 from Crypto.Random import get_random_bytes
 from Crypto.Util.Padding import pad, unpad
 
@@ -78,3 +78,69 @@ def hmac_sha_256(plain_text):
     # Generating bytes for plain text
     plain_text_bytes = plain_text.encode("utf-8")
     return hmac.new(secret_key, plain_text_bytes, hashlib.sha256).hexdigest()
+
+
+def aes_encrypt(plain_text):
+    # Getting secret key in bytes
+    secret_key = configuration_properties.get("CRYPTOGRAPHY_SECRET_KEY").encode("utf-8")
+
+    # Generating hash, which will be of size 32
+    secret_key = hashlib.sha256(secret_key).digest()
+
+    # Truncating to get 16bytes key
+    secret_key = secret_key[:16]
+
+    # Generating IV
+    iv = get_random_bytes(16)
+
+    # Creating Cipher(engine) for encrypting and initializing Cipher with secret key and IV
+    cipher = AES.new(secret_key, AES.MODE_CBC, iv)
+
+    # Generating bytes for plain text
+    plaintext_bytes = plain_text.encode("utf-8")
+
+    # Padding data similar to PKCS5Padding
+    padded_data = pad(plaintext_bytes, AES.block_size)
+
+    # Encrypting the data
+    encrypted_data = cipher.encrypt(padded_data)
+
+    # Creating in-memory file using BytesIO, IV first, then encrypted data
+    output = BytesIO()
+    output.write(iv)
+    output.write(encrypted_data)
+
+    # Returning encrypted data in bytes
+    return output.getvalue()
+
+
+def aes_decrypt(encrypted_data):
+    # Getting secret key in bytes
+    secret_key = configuration_properties.get("CRYPTOGRAPHY_SECRET_KEY").encode("utf-8")
+
+    # Generating hash, which will be of size 32
+    secret_key = hashlib.sha256(secret_key).digest()
+
+    # Truncating to get 16bytes key
+    secret_key = secret_key[:16]
+
+    # Creating in-memory file to hold the bytes
+    data = BytesIO(encrypted_data)
+
+    # Reading first 16 bytes of IV
+    iv = data.read(16)
+
+    # Creating Cipher(engine) for decrypting and initializing Cipher with secret key and IV
+    cipher = AES.new(secret_key, AES.MODE_CBC, iv)
+
+    # Keeping the bytes of encrypted data in new variable
+    plaintext_bytes = data.read()
+
+    # Decrypting the data
+    padded_data = cipher.decrypt(plaintext_bytes)
+
+    # Removing padding from the data
+    plaintext_bytes = unpad(padded_data, AES.block_size)
+
+    # Convert bytes to string
+    return plaintext_bytes.decode("utf-8")
