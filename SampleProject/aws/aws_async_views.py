@@ -92,3 +92,24 @@ async def get_pre_signed_url(request):
     except Exception:
         response = get_error_response(ServiceException())
     return response
+
+
+@request_mapping("POST")
+async def extract_file_name_request(request):
+    # noinspection PyBroadException
+    try:
+        module_lock_check("AWS_ENABLE", "A")
+
+        file_path = request.POST.get('file_path')
+
+        file_name = extract_file_name(file_path,True)
+        response = get_success_response({
+            "message": "Extracted file name successfully",
+            "file_name": file_name
+        })
+
+    except ServiceException as e:
+        response = get_error_response(e)
+    except Exception:
+        response = get_error_response(ServiceException())
+    return response

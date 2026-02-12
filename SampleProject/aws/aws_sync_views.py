@@ -3,7 +3,7 @@ from django.http import FileResponse
 from prateek_gupta.LogManager import logger
 from prateek_gupta.aws_sync import (
     check_file_existence, get_file_content_in_bytes, upload, delete,
-    pre_signed_url, update_file_name)
+    pre_signed_url, update_file_name, extract_file_name)
 from prateek_gupta.exceptions import ServiceException, module_lock_check
 from prateek_gupta.utils import (request_mapping, async_iterator)
 from utils import (get_success_response, get_api_response, get_error_response)
@@ -88,6 +88,27 @@ def get_pre_signed_url(request):
         url = pre_signed_url(file_key, method)
         response = get_success_response(
             {"message": "Generated pre-signed url successfully", "Pre-Signed URL": url})
+
+    except ServiceException as e:
+        response = get_error_response(e)
+    except Exception:
+        response = get_error_response(ServiceException())
+    return response
+
+
+@request_mapping("POST")
+async def extract_file_name_request(request):
+    # noinspection PyBroadException
+    try:
+        module_lock_check("AWS_ENABLE", "S")
+
+        file_path = request.POST.get('file_path')
+
+        file_name = extract_file_name(file_path,True)
+        response = get_success_response({
+            "message": "Extracted file name successfully",
+            "file_name": file_name
+        })
 
     except ServiceException as e:
         response = get_error_response(e)
