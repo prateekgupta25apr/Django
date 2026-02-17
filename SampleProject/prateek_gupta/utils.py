@@ -122,4 +122,4 @@ def get_content_type(file_name):
     else:
         maintype, subtype = "application", "octet-stream"
 
-    return {"maintype": maintype, "subtype": subtype,"content_type": content_type}
+    return {"maintype": maintype, "subtype": subtype, "content_type": content_type}
