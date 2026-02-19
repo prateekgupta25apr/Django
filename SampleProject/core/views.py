@@ -24,9 +24,8 @@ async def test(request):
         response = get_success_response({"data": data})
     except ServiceException as e:
         response = get_error_response(e)
-    except Exception:
-        response = get_error_response(ServiceException(
-            exception_type=ServiceException.ExceptionType.UNKNOWN_ERROR))
+    except Exception as e:
+        response = get_error_response(e)
     logger.info("Exiting test()")
     return response
 
