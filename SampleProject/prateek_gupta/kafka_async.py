@@ -145,12 +145,15 @@ async def get_topic(topic_name):
         partitions = {}
         for tp in topic_partitions:
             partitions[tp.partition] = {
-                "earliest_offset": beginning_offsets.get(tp),
-                "latest_offset": end_offsets.get(tp),
-                "message_count": end_offsets.get(tp) - beginning_offsets.get(tp)
+                "earliest(start)Offset": beginning_offsets.get(tp),
+                "latest(end)Offset": end_offsets.get(tp),
+                "messageCount": end_offsets.get(tp) - beginning_offsets.get(tp)
             }
 
         response["partitions"] = partitions
+        # noinspection PyProtectedMember
+        response["replication.factor"] = len(
+            consumer._client.cluster._partitions[topic_name][0].replicas)
         # Note: aiokafka doesn't provide methods to extract config "retention.ms"
         return response
     finally:

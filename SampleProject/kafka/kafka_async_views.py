@@ -55,7 +55,7 @@ async def get_topic_request(request):
         topic_name = request.GET.get("topic")
         topic = await get_topic(topic_name)
         response = get_success_response({
-            "message": "Topics fetched successfully", "topic": topic})
+            "message": "Successfully retrieve details for the topic : "+topic_name, "topic": topic})
     except ServiceException as e:
         response = get_error_response(e)
     except Exception:

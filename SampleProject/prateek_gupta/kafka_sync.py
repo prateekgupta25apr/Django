@@ -136,7 +136,8 @@ def get_topic(topic_name):
 
     # Get partitions
     metadata = consumer.list_topics(topic=topic_name)
-    partitions = metadata.topics[topic_name].partitions.keys()
+    partitions_metadata = metadata.topics[topic_name].partitions
+    partitions = partitions_metadata.keys()
 
     partition_details = {}
     topic_partitions = [TopicPartition(topic_name, p) for p in partitions]
@@ -147,13 +148,15 @@ def get_topic(topic_name):
     for tp in topic_partitions:
         low, high = consumer.get_watermark_offsets(tp, timeout=5.0)
         partition_details[tp.partition] = {
-            'earliest_offset': low,
-            'latest_offset': high,
-            'message_count': high - low
+            'earliest(start)Offset': low,
+            'latest(end)Offset': high,
+            'messageCount': high - low
         }
 
     consumer.close()
     response["partitions"] = partition_details
+
+    response["replication.factor"] = len(partitions_metadata[0].replicas)
 
     # Get retention.ms
     config_resource = ConfigResource(ConfigResource.Type.TOPIC, topic_name)
