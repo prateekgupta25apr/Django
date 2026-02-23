@@ -1,3 +1,5 @@
+from db.models import Table1AttachmentMapping
+from prateek_gupta.utils import execute_as_async
 from utils import execute_query
 
 
@@ -41,6 +43,20 @@ async def partial_update_data(primary_key, col_1=None, col_2=None):
     query = (f"update table_1 set " + set_cols + f" where primary_key={primary_key}")
     await execute_query(query)
 
+
 async def delete_data(primary_key):
     query = f"delete from table_1 where primary_key={primary_key}"
     await execute_query(query)
+
+
+async def add_attachment(table_1_primary_key, attachment):
+    await execute_as_async(
+        Table1AttachmentMapping.objects.create,
+        table_1_id=table_1_primary_key, attachment_path=attachment
+    )
+
+
+async def get_attachment_path(primary_key):
+    query = f"select attachment_path from table_1_attachment_mapping where primary_key={primary_key}"
+    result = await execute_query(query, 'fetchone')
+    return result[0]
