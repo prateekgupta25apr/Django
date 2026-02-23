@@ -57,6 +57,5 @@ async def add_attachment(table_1_primary_key, attachment):
 
 
 async def get_attachment_path(primary_key):
-    query = f"select attachment_path from table_1_attachment_mapping where primary_key={primary_key}"
-    result = await execute_query(query, 'fetchone')
-    return result[0]
+    obj = await execute_as_async(Table1AttachmentMapping.objects.get, primary_key=primary_key)
+    return obj.attachment_path
