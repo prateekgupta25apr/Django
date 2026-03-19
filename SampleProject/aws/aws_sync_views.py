@@ -87,7 +87,7 @@ def get_pre_signed_url(request):
 
         url = pre_signed_url(file_key, method)
         response = get_success_response(
-            {"message": "Generated pre-signed url successfully", "Pre-Signed URL": url})
+            {"message": "Generated pre-signed url successfully", "pre_signed_url": url})
 
     except ServiceException as e:
         response = get_error_response(e)
@@ -104,7 +104,7 @@ async def extract_file_name_request(request):
 
         file_path = request.POST.get('file_path')
 
-        file_name = extract_file_name(file_path,True)
+        file_name = extract_file_name(file_path, True)
         response = get_success_response({
             "message": "Extracted file name successfully",
             "file_name": file_name
