@@ -47,8 +47,10 @@ class TenantContext:
     def __init__(self, request):
         # noinspection PyBroadException
         try:
-            use_default_schema=False
-            db_schema_prefix=configuration_properties.get("db_schema_prefix",'')
+            use_default_schema = False
+            db_schema_prefix = configuration_properties.get("db_schema_prefix", '')
+            self.base_url = configuration_properties.get("base_url", '')
+            self.api_url = configuration_properties.get("api_url", '')
             if db_schema_prefix:
                 # noinspection PyBroadException
                 try:
@@ -59,7 +61,7 @@ class TenantContext:
                 except Exception:
                     logger.error("Error occurred while setting schema for the tenant "
                                  "provided hence setting default schema")
-                    use_default_schema=True
+                    use_default_schema = True
             else:
                 use_default_schema = True
 

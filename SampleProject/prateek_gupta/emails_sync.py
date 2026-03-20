@@ -111,8 +111,10 @@ def send(from_email: str, to_email: str, subject: str,
     for attachment in inline_attachment:
         # noinspection PyBroadException
         try:
+            # Fetching file based on file name
             if "https://" not in attachment.get("file_url", ""):
                 file_content = get_file_content_in_bytes(attachment["file_url"])
+            # Fetching file based on pre-signed url
             else:
                 response = requests.get(attachment["file_url"])
                 if response.status_code == 200:
@@ -140,8 +142,10 @@ def send(from_email: str, to_email: str, subject: str,
         for attachment in attachments:
             # noinspection PyBroadException
             try:
+                # Fetching file based on file name
                 if attachment.get("file_key", ""):
                     file_content = get_file_content_in_bytes(attachment["file_key"])
+                # Fetching file based on pre-signed url
                 else:
                     response = requests.get(attachment["file_url"])
                     if response.status_code == 200:
