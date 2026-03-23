@@ -187,10 +187,17 @@ def get_plain_content(html_content: str):
     tags = parser.find_all("img")
 
     for tag in tags:
+        # Creating new P tag
         p_tag = parser.new_tag("p")
+
+        # Getting image tag message
         alt_message = tag.attrs.get("alt", "")
         alt_message = alt_message if alt_message else "image"
+
+        # Setting image tag message in P tag
         p_tag.string = f"[{alt_message}]"
+
+        # Replacing image tag with P tag
         tag.replace_with(p_tag)
 
     return parser.text
@@ -208,7 +215,8 @@ def get_html_content_and_inline_attachments(html_content: str):
         cid, ext = os.path.splitext(file_key)
         tag.attrs["src"] = f"cid:{cid}"
         inline_attachments.append({
-            "file_key": file_key, "file_url": img_url, "cid": cid, "ext": ext})
+            "file_key": file_key, "file_url": img_url, "cid": cid, "ext": ext,
+            'file_name': file_name})
     return str(parser), inline_attachments
 
 
