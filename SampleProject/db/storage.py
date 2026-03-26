@@ -5,7 +5,7 @@ from concurrent.futures import Future
 from django.core.files.storage import Storage
 from django.utils.deconstruct import deconstructible
 
-from prateek_gupta.aws_async import check_file_existence, upload
+from prateek_gupta.s3_async import check_file_existence, upload
 from prateek_gupta.thread_manager import executor
 
 
@@ -22,7 +22,7 @@ class MyStorage(Storage):
         if not self.exists(name):
             future: Future = executor.submit(
                 asyncio.run,
-                upload(file=content.file, file_key=name, content_type=content.content_type))
+                upload(file_content=content.file, file_key=name, content_type=content.content_type))
             future.result()
         return name
 

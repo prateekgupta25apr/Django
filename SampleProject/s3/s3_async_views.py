@@ -1,6 +1,6 @@
 from django.http import FileResponse
 
-from prateek_gupta.aws_async import *
+from prateek_gupta.s3_async import *
 from prateek_gupta.exceptions import ServiceException
 from prateek_gupta.utils import (request_mapping, async_iterator)
 from utils import (get_success_response, get_api_response, get_error_response)
@@ -10,7 +10,7 @@ from utils import (get_success_response, get_api_response, get_error_response)
 async def get_file(request):
     # noinspection PyBroadException
     try:
-        module_lock_check("AWS_ENABLE", "A")
+        module_lock_check("S3_ENABLE", "A")
 
         file_key = request.GET.get('file_name')
         if await check_file_existence(file_key):
@@ -31,12 +31,12 @@ async def upload_file(request):
     logger.info("Entering upload_file()")
     # noinspection PyBroadException
     try:
-        module_lock_check("AWS_ENABLE", "A")
+        module_lock_check("S3_ENABLE", "A")
 
         file = request.FILES['file']
         prefix = request.POST.get('prefix', "")
         file_key = update_file_name(file.name, prefix)
-        await upload(file, file_key=file_key)
+        await upload(file.file, file_key=file_key, content_type=file.content_type)
         response = dict()
         response['message'] = "Successfully uploaded the file : " + file.name
         response['file_name'] = file.name
@@ -56,7 +56,7 @@ async def delete_file(request):
     logger.info("Entering delete_file()")
     # noinspection PyBroadException
     try:
-        module_lock_check("AWS_ENABLE", "A")
+        module_lock_check("S3_ENABLE", "A")
 
         file_name = request.GET['file_name']
 
@@ -76,7 +76,7 @@ async def delete_file(request):
 async def get_pre_signed_url(request):
     # noinspection PyBroadException
     try:
-        module_lock_check("AWS_ENABLE", "A")
+        module_lock_check("S3_ENABLE", "A")
 
         file_key = request.GET.get('file_name')
         method = request.GET.get('method', None)
@@ -98,11 +98,11 @@ async def get_pre_signed_url(request):
 async def extract_file_name_request(request):
     # noinspection PyBroadException
     try:
-        module_lock_check("AWS_ENABLE", "A")
+        module_lock_check("S3_ENABLE", "A")
 
         file_path = request.POST.get('file_path')
 
-        file_name = extract_file_name(file_path,True)
+        file_name = extract_file_name(file_path, True)
         response = get_success_response({
             "message": "Extracted file name successfully",
             "file_name": file_name

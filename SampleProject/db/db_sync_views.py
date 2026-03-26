@@ -6,7 +6,7 @@ from django.http.multipartparser import MultiPartParser
 from prateek_gupta.LogManager import logger
 from db.db_sync import (get_data, save_data, update_data,
                         partial_update_data, delete_data, add_attachment, get_attachment_path)
-from prateek_gupta.aws_sync import get_file_content_in_bytes, get_file_details
+from prateek_gupta.s3_sync import get_file_content_in_bytes, get_file_details
 from prateek_gupta.exceptions import ServiceException
 from prateek_gupta.utils import request_mapping, async_iterator
 from utils import get_success_response, get_error_response

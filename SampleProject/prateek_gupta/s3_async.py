@@ -83,7 +83,7 @@ async def get_file_content_in_bytes(file_name=None):
     return response_in_bytes
 
 
-async def upload(file, bucket_name=None, prefix="",
+async def upload(file_content, bucket_name=None, prefix="",
                  file_key=None, content_type=None):
     logger.info("Entering upload()")
     if bucket_name is None:
@@ -94,11 +94,8 @@ async def upload(file, bucket_name=None, prefix="",
             raise ServiceException(
                 message="Couldn't establish a connection to AWS")
 
-        await s3_client.upload_fileobj(
-            file, bucket_name, (prefix + (file_key if file_key is not None
-                                          else file.name)),
-            ExtraArgs={'ContentType': (
-                content_type if content_type is not None else file.content_type)})
+        await s3_client.upload_fileobj(file_content, bucket_name, (prefix + file_key),
+                                       ExtraArgs={'ContentType': content_type})
     logger.info("Exiting upload()")
 
 

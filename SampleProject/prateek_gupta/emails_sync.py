@@ -10,7 +10,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from prateek_gupta import configuration_properties
-from prateek_gupta.aws_sync import (
+from prateek_gupta.s3_sync import (
     get_bucket_name, get_s3_client, upload, pre_signed_url, extract_file_name,
     update_file_name, get_file_content_in_bytes
 )

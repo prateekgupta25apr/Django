@@ -1,7 +1,7 @@
 from django.http import FileResponse
 
 from prateek_gupta.LogManager import logger
-from prateek_gupta.aws_sync import (
+from prateek_gupta.s3_sync import (
     check_file_existence, get_file_content_in_bytes, upload, delete,
     pre_signed_url, update_file_name, extract_file_name)
 from prateek_gupta.exceptions import ServiceException, module_lock_check
@@ -13,7 +13,7 @@ from utils import (get_success_response, get_api_response, get_error_response)
 def get_file(request):
     # noinspection PyBroadException
     try:
-        module_lock_check("AWS_ENABLE", "S")
+        module_lock_check("S3_ENABLE", "S")
 
         file_key = request.GET.get('file_name')
         if check_file_existence(file_key):
@@ -35,12 +35,12 @@ def upload_file(request):
     logger.info("Entering upload_file()")
     # noinspection PyBroadException
     try:
-        module_lock_check("AWS_ENABLE", "S")
+        module_lock_check("S3_ENABLE", "S")
 
         file = request.FILES['file']
         prefix = request.POST.get('prefix', "")
         file_key = update_file_name(file.name, prefix)
-        upload(file, file_key=file_key)
+        upload(file.file, file_key=file_key, content_type=file.content_type)
         response = dict()
         response['message'] = "Successfully uploaded the file : " + file.name
         response['file_name'] = file.name
@@ -60,7 +60,7 @@ def delete_file(request):
     logger.info("Entering delete_file()")
     # noinspection PyBroadException
     try:
-        module_lock_check("AWS_ENABLE", "S")
+        module_lock_check("S3_ENABLE", "S")
 
         file_name = request.GET['file_name']
 
@@ -80,7 +80,7 @@ def delete_file(request):
 def get_pre_signed_url(request):
     # noinspection PyBroadException
     try:
-        module_lock_check("AWS_ENABLE", "S")
+        module_lock_check("S3_ENABLE", "S")
 
         file_key = request.GET.get('file_name')
         method = request.GET.get('method', None)
@@ -100,7 +100,7 @@ def get_pre_signed_url(request):
 async def extract_file_name_request(request):
     # noinspection PyBroadException
     try:
-        module_lock_check("AWS_ENABLE", "S")
+        module_lock_check("S3_ENABLE", "S")
 
         file_path = request.POST.get('file_path')
 

@@ -49,7 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'core',
     'db',
-    'aws',
+    's3',
     'documents',
     'open_search',
     'cryptography_module'

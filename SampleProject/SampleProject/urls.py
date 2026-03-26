@@ -24,7 +24,7 @@ urlpatterns = [
     path(context_path + '/admin/', admin.site.urls),
     path(context_path + '/', include("core.urls")),
     path(context_path + '/db/', include("db.db_urls")),
-    path(context_path + '/aws/', include("aws.urls")),
+    path(context_path + '/s3/', include("s3.urls")),
     path(context_path + '/documents/', include("documents.urls")),
     path(context_path + '/kafka/', include("kafka.kafka_urls")),
     path(context_path + '/redis/', include("redis_module.redis_urls")),
