@@ -1,5 +1,6 @@
 import datetime
 import email
+import email.policy
 import json
 import os
 import smtplib
