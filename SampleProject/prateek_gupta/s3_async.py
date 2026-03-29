@@ -50,7 +50,7 @@ async def get_s3_client():
 def get_bucket_name(default=False):
     # noinspection PyBroadException
     try:
-        bucket_name = prateek_gupta.configuration_properties['AWS_BUCKET_NAME']
+        bucket_name = prateek_gupta.configuration_properties['S3_BUCKET_NAME']
 
         if default or not bucket_name:
             bucket_name = "pg"
