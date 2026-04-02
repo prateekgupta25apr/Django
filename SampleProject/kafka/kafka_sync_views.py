@@ -4,7 +4,7 @@ from prateek_gupta.LogManager import logger
 from prateek_gupta.exceptions import ServiceException, module_lock_check
 from prateek_gupta.kafka_sync import (send, create_topic, get_all_topics, get_topic,
                                       update_topic_increase_partition, update_topic,
-                                      delete_topic, get_committed_offset, get_messages)
+                                      delete_topic, get_committed_offset, get_messages, update_topics)
 from prateek_gupta.utils import request_mapping
 from utils import get_success_response, get_error_response, get_api_response
 
@@ -181,4 +181,40 @@ def get_messages_request(request):
     except Exception:
         response = get_error_response(ServiceException())
     logger.info("Existing get_messages_request()")
+    return response
+
+
+@request_mapping("POST")
+def add_topic_request(request):
+    logger.info("Entering add_topic_request()")
+    # noinspection PyBroadException
+    try:
+        module_lock_check("KAFKA_ENABLE", "S")
+
+        topic = request.POST.get("topic", "")
+        update_topics(topic, True)
+        response = get_success_response({"message": "Successfully added topic"})
+    except ServiceException as e:
+        response = get_error_response(e)
+    except Exception:
+        response = get_error_response(ServiceException())
+    logger.info("Existing add_topic_request()")
+    return response
+
+
+@request_mapping("POST")
+def remove_topic_request(request):
+    logger.info("Entering remove_topic_request()")
+    # noinspection PyBroadException
+    try:
+        module_lock_check("KAFKA_ENABLE", "S")
+
+        topic = request.POST.get("topic", "")
+        update_topics(topic, False)
+        response = get_success_response({"message": "Successfully removed topic"})
+    except ServiceException as e:
+        response = get_error_response(e)
+    except Exception:
+        response = get_error_response(ServiceException())
+    logger.info("Existing remove_topic_request()")
     return response

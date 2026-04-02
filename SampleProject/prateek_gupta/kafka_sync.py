@@ -2,10 +2,12 @@ from confluent_kafka import Consumer, Producer, ConsumerGroupTopicPartitions
 from confluent_kafka.admin import AdminClient, ConfigResource
 from confluent_kafka.cimpl import NewTopic, NewPartitions, TopicPartition
 
-from prateek_gupta import pre_construct_method
+from prateek_gupta import post_construct_method
 from prateek_gupta.LogManager import logger
+from prateek_gupta.schedule_task import ScheduledTask
 
-global_consumer = None
+topics_list = []
+topic_task_map = {}
 
 
 def get_consumer(topics=None, group_id=None):
@@ -76,27 +78,47 @@ def get_admin_client():
     return AdminClient(config)
 
 
-def setup_sync_kafka(topics):
+@post_construct_method()
+def setup_sync_kafka():
     from prateek_gupta import configuration_properties
     enable_kafka = configuration_properties.get("KAFKA_ENABLE", None)
     if enable_kafka and enable_kafka == "S":
-        logger.info("Setting up sync kafka")
-        global global_consumer
-        global_consumer = get_consumer(topics=topics)
+        logger.info("Starting Sync Kafka Consumers")
 
-        logger.info("Setting up sync kafka completed")
-        while global_consumer is not None:
-            msg = global_consumer.poll(timeout=1.0)
-            if msg is None:
-                continue
-            if msg.error():
-                logger.error(msg.error())
-                continue
+        for topic in topics_list:
+            schedule_messages_polling(topic, True)
+
+        logger.info("Started Sync Kafka Consumers")
+
+
+def schedule_messages_polling(topic, is_added):
+    """We are using scheduled future concept for polling message because it provides better
+    control for polling messages over while loop as I can cancel the task anytime using
+    the method cancel()"""
+    if is_added:
+        consumer = get_consumer(topics=[topic])
+
+        task = ScheduledTask(
+            1, False, poll_messages, consumer)
+        task.start()
+        topic_task_map[topic] = task
+    else:
+        task: ScheduledTask = topic_task_map[topic]
+        task.cancel()
+        del topic_task_map[topic]
+
+
+def poll_messages(consumer):
+    msg = consumer.poll(timeout=0.5)
+    if msg is not None:
+        if msg.error():
+            logger.error(msg.error())
+        else:
             # noinspection PyArgumentList
-            logger.info(f"Received message: {msg.value()}")
+            logger.info(f"Received message :: KEY: {msg.key()}; PARTITION:{msg.partition()}; "
+                        f"OFFSET:{msg.offset()}; VALUE: {msg.value().decode()};")
 
 
-@pre_construct_method(["test"])
 def setup_sync_kafka_caller(topics):
     import threading
     thread = threading.Thread(
@@ -111,7 +133,7 @@ def send(topic, message):
         if err is not None:
             logger.error(f'Message delivery failed: {err}')
         else:
-            logger.info(f'Message delivered to {msg.topic()} [{msg.partition()}]')
+            logger.info(f'Message delivered to {msg.topic()}')
 
     producer = get_producer()
     producer.produce(topic, message, callback=method_to_be_callback)
@@ -302,3 +324,14 @@ def get_messages(payload: dict):
         response[topic] = topic_messages
 
     return response
+
+
+def update_topics(topic, is_added):
+    if is_added:
+        topics_list.append(topic)
+        schedule_messages_polling(topic, True)
+        logger.info(f"Started listening for messages to the topic :  {topic}")
+    else:
+        topics_list.remove(topic)
+        schedule_messages_polling(topic, False)
+        logger.info(f"Stopped listening for messages to the topic :  {topic}")

@@ -8,6 +8,8 @@ urlpatterns = [
     path('async/get_topic', kafka_async_views.get_topic_request),
     path('async/get_committed_offset', kafka_async_views.get_committed_offset_request),
     path('async/get_messages', kafka_async_views.get_messages_request),
+    path('async/add_topic', kafka_async_views.add_topic_request),
+    path('async/remove_topic', kafka_async_views.remove_topic_request),
 
 
     path('sync/send', kafka_sync_views.send_message_request),
@@ -20,4 +22,6 @@ urlpatterns = [
     path('sync/delete_topic', kafka_sync_views.delete_topic_request),
     path('sync/get_committed_offset', kafka_sync_views.get_committed_offset_request),
     path('sync/get_messages', kafka_sync_views.get_messages_request),
+    path('sync/add_topic', kafka_sync_views.add_topic_request),
+    path('sync/remove_topic', kafka_sync_views.remove_topic_request),
 ]

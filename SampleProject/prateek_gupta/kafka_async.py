@@ -4,10 +4,11 @@ import ssl
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from aiokafka.structs import RecordMetadata, TopicPartition
 
-from prateek_gupta import pre_construct_method
+from prateek_gupta import post_construct_method
 from prateek_gupta.LogManager import logger
 
-global_consumer = None
+topics_list = []
+topic_task_map = {}
 
 
 def get_consumer(topics=None, group_id=None):
@@ -65,39 +66,56 @@ def get_producer():
     return AIOKafkaProducer(**config)
 
 
-async def setup_async_kafka(topics):
+@post_construct_method()
+async def setup_async_kafka():
     from prateek_gupta import configuration_properties, project_dir
     enable_kafka = configuration_properties.get("KAFKA_ENABLE", None)
     configuration_properties["KAFKA_AWS_CA_FILE_PATH"] = (
             project_dir + "AmazonRootCA1.pem")
     if enable_kafka and enable_kafka == "A":
-        logger.info("Setting up async kafka")
+        logger.info("Starting Async Kafka Consumers")
 
         # To log only warnings n errors from aiokafka
         logging.getLogger("aiokafka").setLevel(logging.WARNING)
 
-        global global_consumer
-        global_consumer = get_consumer(topics=topics)
-        await global_consumer.start()
-        try:
-            logger.info("Setting up async kafka completed")
-            async for msg in global_consumer:
-                if global_consumer is None:
-                    break
-                logger.info(f"Received: {msg.value.decode()} from offset {msg.offset}")
-        finally:
-            await global_consumer.stop()
+        import asyncio
+        for topic in topics_list:
+            await schedule_messages_polling(topic, True)
+
+        logger.info("Started Async Kafka Consumers")
 
 
-@pre_construct_method(["test"])
-async def setup_async_kafka_caller(topics):
-    import threading
+async def schedule_messages_polling(topic, is_added):
+    """We are using scheduled future concept for polling message because it provides better
+        control for polling messages over while loop as I can cancel the task anytime using
+        the method cancel()"""
     import asyncio
-    thread = threading.Thread(
-        target=asyncio.run,
-        args=(setup_async_kafka(topics),)
-    )
-    thread.start()
+    if is_added:
+        topic_task_map[topic] = asyncio.create_task(poll_messages(topic))
+    else:
+        task = topic_task_map[topic]
+        task.cancel()
+        del topic_task_map[topic]
+
+
+async def poll_messages(topic):
+    consumer = None
+    try:
+        consumer = get_consumer(topics=[topic])
+        await consumer.start()
+        # With aiokafka, we should rely on
+        # async for msg in consumer
+        # and NOT implement our own scheduler for polling.
+        async for msg in consumer:
+            if consumer is None:
+                break
+            logger.info(f"Received message :: KEY: {msg.key}; PARTITION:{msg.partition}; "
+                        f"OFFSET:{msg.offset}; VALUE: {msg.value.decode()};")
+    except Exception as e:
+        logger.error(e)
+    finally:
+        if consumer:
+            await consumer.stop()
 
 
 async def send(topic, message: str):
@@ -234,3 +252,14 @@ async def get_messages(payload: dict):
         return response
     finally:
         await consumer.stop()
+
+
+async def update_topics(topic, is_added):
+    if is_added:
+        topics_list.append(topic)
+        await schedule_messages_polling(topic, True)
+        logger.info(f"Started listening for messages to the topic :  {topic}")
+    else:
+        topics_list.remove(topic)
+        await schedule_messages_polling(topic, False)
+        logger.info(f"Stopped listening for messages to the topic :  {topic}")
