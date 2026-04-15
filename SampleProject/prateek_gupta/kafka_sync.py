@@ -187,6 +187,7 @@ def get_topic(topic_name):
     for res, future in configs.items():
         config = future.result()
         response["retention.ms"] = config.get('retention.ms', None).value
+        response["min.insync.replicas"] = config.get('min.insync.replicas', None).value
 
     return response
 

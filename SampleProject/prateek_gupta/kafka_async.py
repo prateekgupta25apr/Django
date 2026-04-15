@@ -172,7 +172,8 @@ async def get_topic(topic_name):
         # noinspection PyProtectedMember
         response["replication.factor"] = len(
             consumer._client.cluster._partitions[topic_name][0].replicas)
-        # Note: aiokafka doesn't provide methods to extract config "retention.ms"
+        # Note: aiokafka doesn't provide methods to extract config "retention.ms" and
+        # "min.insync.replicas
         return response
     finally:
         await consumer.stop()
