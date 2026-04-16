@@ -52,7 +52,8 @@ INSTALLED_APPS = [
     's3',
     'documents',
     'open_search',
-    'cryptography_module'
+    'cryptography_module',
+    'sqs'
 ]
 
 MIDDLEWARE = [

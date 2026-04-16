@@ -119,15 +119,6 @@ def poll_messages(consumer):
                         f"OFFSET:{msg.offset()}; VALUE: {msg.value().decode()};")
 
 
-def setup_sync_kafka_caller(topics):
-    import threading
-    thread = threading.Thread(
-        target=setup_sync_kafka,
-        args=(topics,)
-    )
-    thread.start()
-
-
 def send(topic, message):
     def method_to_be_callback(err, msg):
         if err is not None:

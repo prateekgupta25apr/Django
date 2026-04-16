@@ -4,7 +4,8 @@ import threading
 
 class ScheduledTask:
     """This class is used to schedule a task for both sync and async programming"""
-    def __init__(self, delay_in_seconds, is_async, method_name, *args, **kwargs):
+    def __init__(
+            self, delay_in_seconds, is_async, method_name, *args, **kwargs):
         self.delay_in_seconds = delay_in_seconds
         self.method_name = method_name
         self.args = args
@@ -25,7 +26,8 @@ class ScheduledTask:
             await self.method_name(*self.args, **self.kwargs)
 
             # Waiting for specified number of seconds and then continuing the thread,
-            # if in between flag is set to true then we break the thread
+            # if in between flag(for _stop_event the set() method is called) is set to true
+            # then we break the thread
             if self._stop_event.wait(self.delay_in_seconds):
                 break
 
@@ -35,7 +37,8 @@ class ScheduledTask:
             self.method_name(*self.args, **self.kwargs)
 
             # Waiting for specified number of seconds and then continuing the thread,
-            # if in between flag is set to true then we break the thread
+            # if in between flag(for _stop_event the set() method is called) is set to true
+            # then we break the thread
             if self._stop_event.wait(self.delay_in_seconds):
                 break
 
