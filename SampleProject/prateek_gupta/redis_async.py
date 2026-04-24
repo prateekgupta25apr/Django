@@ -26,6 +26,9 @@ def get_redis_instance():
 
     if configuration_properties.get("REDIS_PASSWORD"):
         config["password"] = configuration_properties.get("REDIS_PASSWORD")
+
+    if configuration_properties.get("REDIS_USERNAME"):
+        config["username"] = configuration_properties.get("REDIS_USERNAME")
     return Redis(**config)
 
 
