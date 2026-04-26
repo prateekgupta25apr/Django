@@ -13,7 +13,8 @@ class ScheduledTask:
 
         # Event to keep track of when to stop the thread
         self._stop_event = threading.Event()
-        # Using daemon so thread runs in background and won't stop application from shutting down
+        # Using daemon so thread runs in background and won't stop application from
+        # shutting down
         if is_async:
             self._thread = threading.Thread(
                 target=asyncio.run, args=(self._run_async(),), daemon=True)
