@@ -21,7 +21,7 @@ from prateek_gupta import configuration_properties
 
 context_path = configuration_properties.get('context_path', '')
 urlpatterns = [
-    path(context_path + '/admin/', admin.site.urls),
+    # Removed admin page urls, as we will be managing data via DB
     path(context_path + '/', include("core.urls")),
     path(context_path + '/db/', include("db.db_urls")),
     path(context_path + '/s3/', include("s3.urls")),
@@ -32,4 +32,5 @@ urlpatterns = [
     path(context_path + '/emails/', include("emails.emails_urls")),
     path(context_path + '/cryptography/', include("cryptography_module.cryptography_urls")),
     path(context_path + '/sqs/', include("sqs.sqs_urls")),
+    path(context_path + '/users/', include("users.users_urls")),
 ]

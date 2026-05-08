@@ -41,7 +41,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    # Removed admin page urls, as we will be managing data via DB
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -53,7 +53,8 @@ INSTALLED_APPS = [
     'documents',
     'open_search',
     'cryptography_module',
-    'sqs'
+    'sqs',
+    'users'
 ]
 
 MIDDLEWARE = [
