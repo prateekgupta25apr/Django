@@ -1,10 +1,10 @@
 import datetime
 import json
 
-from django.core.mail import send_mail
 from django.db import IntegrityError
 from django.utils import timezone
 
+from prateek_gupta.emails_async import send
 from prateek_gupta.exceptions import ServiceException, log_error
 from prateek_gupta.password_utils import valid_password, encrypt_password
 from prateek_gupta.utils import request_mapping, execute_as_async
@@ -25,29 +25,30 @@ async def login(request):
         user = await execute_as_async(User.objects.get, email=email)
 
         # Authenticating provided user details
-        result = valid_password(password, user.password)
+        is_password_valid = valid_password(password, user.password)
 
-        if result["status"] == 1:
+        result = dict()
+        user_details = None
+
+        if is_password_valid:
+            # Preparing user details for response
+            user_details = prepare_user_details(user, remember_me)
+            result["status"] = 1
             result['message'] = "Login successful"
-            result['user_details'] = prepare_user_details(request, user, remember_me)
+            result['user_details'] = user_details
+        else:
+            result["status"] = 2
+            result['message'] = "Invalid password"
 
         response = get_success_response(result)
-        request.user_context.login_user(request, response)
-        return response
+        if user_details:
+            request.user_context.update_session_for_login(user_details, response)
+
     except ServiceException as e:
         return get_error_response(e)
     except Exception:
         return get_error_response(ServiceException())
-
-
-async def add_user(first_name, last_name, email, password):
-    return await execute_as_async(
-        User.objects.create,
-        first_name=first_name,
-        last_name=last_name,
-        email=email,
-        password=encrypt_password(password)
-    )
+    return response
 
 
 @request_mapping('POST')
@@ -60,21 +61,29 @@ async def sign_up(request):
         email = body['email']
         password = body['password']
         remember_me = body.get("remember_me", False)
+        user_details = None
 
         try:
             # Saving user
             added_user = await add_user(
                 first_name=first_name, last_name=last_name, email=email, password=password)
 
+            user_details = prepare_user_details(added_user, remember_me)
 
             # Preparing result
-            result = {"status": 1,
-                      "message": "Sign up successful",
-                      "user_details": prepare_user_details(request, added_user, remember_me)}
+            result = {
+                "status": 1,
+                "message": "Sign up successful",
+                "user_details": user_details
+            }
         except IntegrityError:
             result = {"status": 2, "message": "Provided email already exists"}
+
         response = get_success_response(result)
-        # request.user_context.login_user(request, response)
+
+        # Updating session only if user added successfully
+        if user_details:
+            request.user_context.update_session_for_login(user_details, response)
         return response
     except ServiceException as e:
         return get_error_response(e)
@@ -86,7 +95,7 @@ async def sign_up(request):
 def logout(request):
     # noinspection PyBroadException
     try:
-        request.user_context.logout_user(request)
+        request.user_context.update_session_for_logout(request)
         return get_success_response({"message": "Successfully logged out"})
     except ServiceException as e:
         return get_error_response(e)
@@ -104,7 +113,7 @@ async def forgot_password(request):
         email = body["email"]
 
         # Retrieving resend status
-        resend_status = body["resend"]
+        resend_status = body.get("resend", False)
 
         # Declaring object for response
         response = dict()
@@ -163,12 +172,12 @@ async def forgot_password(request):
                 'account will remain secure.</p><p>Regards<br>Prateek Gupta</p>'
                 '</body></html>')
         from prateek_gupta import configuration_properties
-        sender_email = configuration_properties.get(
+        from_email = configuration_properties.get(
             "EMAILS_DEFAULT_EMAIL", "Prateek Gupta<prateek.gupta25apr@gmail.com>")
-        recipients_emails = [email, ]
-        send_mail(email_subject, '', sender_email, recipients_emails,
-                  html_message=email_content)
 
+        await send(
+            from_email=from_email, to_email=email, subject=email_subject, content=email_content
+        )
         response["status"] = 1
         response["email"] = email
         response["message"] = "Email with link to reset password is sent to your email"
@@ -232,7 +241,7 @@ async def reset_password(request):
         password = request.POST.get('password', None)
 
         # Changing user's password
-        user.set_password(password)
+        user.password = encrypt_password(password)
 
         # Updating forgot_password_request for the user
         user.forgot_password_request = False
@@ -268,8 +277,7 @@ async def delete_user(request):
             await execute_as_async(user.delete)
 
             # Logging out the user
-            request.user_context.user_id = 0
-            request.user_context.user_logout_time = 0
+            request.user_context.update_session_for_logout(request)
 
             if request.user_context.is_mobile_api:
                 result["status"] = 1
@@ -323,12 +331,12 @@ async def change_password(request):
                                       user_id=request.user_context.user_id)
 
         # Validating provided password
-        if not user.check_password(password):
+        if not valid_password(password, user.password):
             return get_success_response(
                 {"status": 2, "message": "Provided password is incorrect"})
 
         # Changing user's password
-        user.set_password(new_password)
+        user.password = encrypt_password(new_password)
 
         # Updating forgot_password_request for the user
         user.forgot_password_request = False
@@ -345,8 +353,8 @@ async def change_password(request):
 
 
 def prepare_user_details(
-        request, user, remember_me=None):
-    """Method to prepare the user details"""
+        user, remember_me=None, user_logout_time=None):
+    """This method prepare the user details for cookie from User entity"""
     user_details = {
         "user_id": user.user_id,
         "first_name": user.first_name,
@@ -354,6 +362,9 @@ def prepare_user_details(
         "email": user.email,
         "dark_mode": user.dark_mode
     }
+
+    if user_logout_time:
+        user_details['user_logout_time'] = user_logout_time
 
     if remember_me is not None:
         # Calculating logout time for the user and if the user has selected for
@@ -365,8 +376,6 @@ def prepare_user_details(
             user_logout_time = ((timezone.now() + datetime.timedelta(days=1))
                                 .timestamp() * 1000)
 
-        request.user_context.user_id = user.user_id
-        request.user_context.user_logout_time = user_logout_time
         user_details['user_logout_time'] = user_logout_time
 
     return user_details
@@ -387,7 +396,7 @@ async def get_user_details(request):
 
         result = {
             'message': 'Successfully retrieved user details',
-            'user_details': prepare_user_details(request, user)
+            'user_details': prepare_user_details(user)
         }
 
         return get_success_response(result)
@@ -412,34 +421,42 @@ async def save_user_details(request):
             return get_error_response(ServiceException(
                 exception_type=ServiceException.ExceptionType.MISSING_REQUIRED_PARAMETERS))
 
-        # Fetching user by email
-        user = await execute_as_async(
-            User.objects.get, user_id=request.user_context.user_id)
-
-        if 'first_name' in payload:
-            user.first_name = payload['first_name']
-
-        if 'last_name' in payload:
-            user.last_name = payload['last_name']
-
-        if 'email' in payload:
-            user.email = payload['email']
-
-        if 'dark_mode' in payload:
-            user.dark_mode = payload['dark_mode']
-
+        user_details = None
         try:
-            await execute_as_async(user.save)
+            user, _ = await execute_as_async(
+                User.objects.update_or_create,
+                user_id=request.user_context.user_id,
+                defaults=payload
+            )
+
+            # Preparing user details for response
+            user_details = prepare_user_details(
+                user, user_logout_time=request.user_context.user_logout_time)
             result = {
                 "status": 1,
                 "message": "User details saved successfully",
-                'user_details': prepare_user_details(request, user)
+                'user_details': user_details
             }
         except IntegrityError:
             result = {"status": 2, "message": "Provided email already exists"}
 
-        return get_success_response(result)
+        response = get_success_response(result)
+        if user_details:
+            request.user_context.update_session_for_login(user_details, response)
+        return response
     except ServiceException as e:
         return get_error_response(e)
     except Exception:
         return get_error_response(ServiceException())
+
+
+async def add_user(first_name, last_name, email, password):
+    """This method takes user details as argument and add user in DB.
+    Password is encrypted before saving"""
+    return await execute_as_async(
+        User.objects.create,
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+        password=encrypt_password(password)
+    )
