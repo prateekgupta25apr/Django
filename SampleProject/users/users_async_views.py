@@ -161,7 +161,7 @@ async def forgot_password(request):
                 'request, please click the button below to choose a new password:'
                 '</p><div><form action="' +
                 request.tenant_context.api_url +
-                'reset_password" method="GET" target="_blank" '
+                'async/reset_password" method="GET" target="_blank" '
                 'style="display:inline-block;"><input type="hidden" name="pg" value="' +
                 code +
                 '"><input type="submit" value="Reset Password" '

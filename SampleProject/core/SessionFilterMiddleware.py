@@ -25,7 +25,7 @@ class SessionFilterMiddleware(MiddlewareMixin):
                             "health_check",
                             "well-known",
                             "login",
-                            "sign_up"
+                            "sign_up",
                             "forgot_password",
                             "reset_password",
                         ])
@@ -102,7 +102,7 @@ class UserContext:
     """This field stores the value to be stored in user_jwt_map when user is logged out"""
     logged_out_key = "LOGGED_OUT"
 
-    def __init__(self, no_auth,cookies):
+    def __init__(self, no_auth, cookies):
         cookie_name = configuration_properties['cookie_name']
         cookie_secret = configuration_properties['cookie_secret']
 
