@@ -6,7 +6,7 @@ from prateek_gupta.sqs_sync import (
     delete_queue, update_queues, get_messages
 )
 from prateek_gupta.utils import (request_mapping)
-from utils import (get_success_response, get_error_response)
+from project_utils import (get_success_response, get_error_response)
 
 
 @request_mapping("POST")

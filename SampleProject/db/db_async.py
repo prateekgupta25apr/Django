@@ -1,6 +1,6 @@
 from db.models import Table1AttachmentMapping
 from prateek_gupta.utils import execute_as_async
-from utils import execute_query
+from project_utils import execute_query
 
 
 async def get_data(primary_key):

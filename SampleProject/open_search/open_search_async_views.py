@@ -7,7 +7,7 @@ from prateek_gupta.open_search_async import (
     upsert_record, partial_update_record, delete_record, search_record, count_record,
     delete_by_query_record)
 from prateek_gupta.utils import request_mapping
-from utils import get_success_response, get_error_response, get_api_response
+from project_utils import get_success_response, get_error_response, get_api_response
 
 
 @request_mapping("GET")

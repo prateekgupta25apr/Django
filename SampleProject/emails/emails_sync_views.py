@@ -1,7 +1,7 @@
 from prateek_gupta.emails_sync import get, send, process_email
 from prateek_gupta.exceptions import module_lock_check, ServiceException
 from prateek_gupta.utils import request_mapping
-from utils import get_success_response, get_error_response, send_email_sync
+from project_utils import get_success_response, get_error_response, send_email_sync
 
 
 @request_mapping("GET")

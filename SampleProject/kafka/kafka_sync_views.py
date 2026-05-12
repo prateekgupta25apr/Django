@@ -6,7 +6,7 @@ from prateek_gupta.kafka_sync import (send, create_topic, get_all_topics, get_to
                                       update_topic_increase_partition, update_topic,
                                       delete_topic, get_committed_offset, get_messages, update_topics)
 from prateek_gupta.utils import request_mapping
-from utils import get_success_response, get_error_response, get_api_response
+from project_utils import get_success_response, get_error_response, get_api_response
 
 
 @request_mapping("POST")

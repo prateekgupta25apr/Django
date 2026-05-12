@@ -10,7 +10,7 @@ from prateek_gupta.exceptions import ServiceException, log_error
 from prateek_gupta.password_utils import valid_password, encrypt_password
 from prateek_gupta.thread_manager import executor
 from prateek_gupta.utils import request_mapping
-from utils import get_error_response, validate_user_login, get_success_response
+from project_utils import get_error_response, validate_user_login, get_success_response
 from .models import User
 
 

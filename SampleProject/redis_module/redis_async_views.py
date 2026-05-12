@@ -2,7 +2,7 @@ from prateek_gupta.LogManager import logger
 from prateek_gupta.exceptions import ServiceException, module_lock_check
 from prateek_gupta.redis_async import get_value, upsert, search_keys, delete_value
 from prateek_gupta.utils import request_mapping
-from utils import get_success_response, get_error_response
+from project_utils import get_success_response, get_error_response
 
 
 @request_mapping("GET")

@@ -9,7 +9,7 @@ from db.db_sync import (get_data, save_data, update_data,
 from prateek_gupta.s3_sync import get_file_content_in_bytes, get_file_details
 from prateek_gupta.exceptions import ServiceException
 from prateek_gupta.utils import request_mapping, async_iterator
-from utils import get_success_response, get_error_response
+from project_utils import get_success_response, get_error_response
 
 
 @request_mapping('GET')

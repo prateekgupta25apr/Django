@@ -8,7 +8,7 @@ import javaproperties
 import jwt
 from asgiref.sync import sync_to_async
 
-from utils import get_success_response, get_error_response
+from project_utils import get_success_response, get_error_response
 
 
 def process_cookie(decode, secret_key, cookie="",

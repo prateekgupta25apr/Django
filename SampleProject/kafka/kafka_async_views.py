@@ -5,7 +5,7 @@ from prateek_gupta.exceptions import ServiceException, module_lock_check
 from prateek_gupta.kafka_async import (send, get_all_topics, get_topic,
                                        get_committed_offset, get_messages, update_topics)
 from prateek_gupta.utils import request_mapping
-from utils import get_success_response, get_error_response, get_api_response
+from project_utils import get_success_response, get_error_response, get_api_response
 
 
 @request_mapping("POST")

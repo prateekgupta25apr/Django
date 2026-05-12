@@ -8,7 +8,7 @@ from prateek_gupta import configuration_properties
 from prateek_gupta.LogManager import logger
 from prateek_gupta.exceptions import ServiceException
 from prateek_gupta.utils import process_cookie
-from utils import get_error_response
+from project_utils import get_error_response
 
 
 class SessionFilterMiddleware(MiddlewareMixin):

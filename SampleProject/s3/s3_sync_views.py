@@ -6,7 +6,7 @@ from prateek_gupta.s3_sync import (
     pre_signed_url, update_file_name, extract_file_name)
 from prateek_gupta.exceptions import ServiceException, module_lock_check
 from prateek_gupta.utils import (request_mapping, async_iterator)
-from utils import (get_success_response, get_api_response, get_error_response)
+from project_utils import (get_success_response, get_api_response, get_error_response)
 
 
 @request_mapping("GET")
