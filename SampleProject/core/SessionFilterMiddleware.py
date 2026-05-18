@@ -46,14 +46,13 @@ class SessionFilterMiddleware(MiddlewareMixin):
     @staticmethod
     def process_response(request, response: HttpResponse):
         response['Access-Control-Allow-Origin'] = (
-            request.META.get("HTTP_ORIGIN", None)) \
-            if request.META.get("HTTP_ORIGIN", None) else '*'
+            request.META.get("HTTP_ORIGIN", None) if request.META.get("HTTP_ORIGIN", None) else '*')
 
-        response['Access-Control-Allow-Methods'] = \
-            'GET, POST, PUT, DELETE, OPTIONS'
+        response['Access-Control-Allow-Methods'] = (
+            'GET, POST, PUT, DELETE, OPTIONS')
 
-        response['Access-Control-Allow-Headers'] = \
-            'Origin, X-Requested-With, Content-Type, Accept, Authorization, domain'
+        response['Access-Control-Allow-Headers'] = (
+            'Origin, X-Requested-With, Content-Type, Accept, Authorization, domain')
 
         response['Access-Control-Allow-Credentials'] = 'true'
         return response

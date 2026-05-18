@@ -2,7 +2,6 @@ import datetime
 import json
 
 from django.db import IntegrityError
-from django.utils import timezone
 
 from prateek_gupta.emails_async import send
 from prateek_gupta.exceptions import ServiceException, log_error
@@ -373,7 +372,7 @@ def prepare_user_details(
         if remember_me:
             user_logout_time = -1
         else:
-            user_logout_time = ((timezone.now() + datetime.timedelta(days=1))
+            user_logout_time = ((datetime.datetime.now() + datetime.timedelta(days=1))
                                 .timestamp() * 1000)
 
         user_details['user_logout_time'] = user_logout_time
