@@ -364,7 +364,8 @@ def change_password(request):
 
 def prepare_user_details(
         user, remember_me=None, user_logout_time=None):
-    """This method prepare the user details for cookie from User entity"""
+    """This method prepare the user details for cookie from User entity.
+    Also, skipping is_mobile_api as that key should not be used from web application."""
     user_details = {
         "user_id": user.user_id,
         "first_name": user.first_name,

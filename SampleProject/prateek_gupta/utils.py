@@ -11,9 +11,10 @@ from asgiref.sync import sync_to_async
 from project_utils import get_success_response, get_error_response
 
 
-def process_cookie(decode, secret_key, cookie="",
-                   cookie_data=None,
-                   algorithms=None):
+def process_cookie(
+        decode, secret_key, cookie="", cookie_data=None, algorithms=None):
+    """Method to decode/encode cookie. If cookie is empty then empty dict is returned as
+    cookie data and if empty cookie data is sent then we return blank string as cookie"""
     if cookie_data is None:
         cookie_data = {}
     if algorithms is None:
