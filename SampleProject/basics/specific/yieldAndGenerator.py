@@ -1,5 +1,5 @@
 """
-Here we are using "yield" keyword(instead of "return" keyword and Generators (instead of
+Here we are using "yield" keyword(instead of "return" keyword) and Generators (instead of
 Iterables) for memory optimization so that we can even calculate the 1000000th term of
 the Fibonacci
 """

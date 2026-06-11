@@ -6,19 +6,6 @@ def recursive_merge_sort(array, left, right):
         merge(array, left, mid, right)
 
 
-def iterative_merge_sort(array):
-    current_size = 1
-    n = len(array)
-    for _ in range(1, n):
-        left = 0
-        for _ in range(n - 1):
-            mid = min((left + current_size - 1), n - 1)
-            right = min((left + (2 * current_size) - 1), n - 1)
-            merge(array, left, mid, right)
-            left += (2 * current_size)
-        current_size *= 2
-
-
 def merge(array, left, mid, right):
     left_array_size = mid - left + 1
     right_array_size = right - mid
@@ -55,6 +42,5 @@ def merge(array, left, mid, right):
 
 
 a = [12, 11, 13, 4, 6, 5]
-#recursive_merge_sort(a, 0, (len(a) - 1))
-iterative_merge_sort(a)
+recursive_merge_sort(a, 0, (len(a) - 1))
 print(a)
