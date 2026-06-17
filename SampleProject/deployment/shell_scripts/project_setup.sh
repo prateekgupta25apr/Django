@@ -63,7 +63,7 @@ EOF
 echo "## done!!"
 
 echo "## Making MySQL publicly accessible"
-touch /etc/mysql/mysql.conf.d/public.cnf
+sudo touch /etc/mysql/mysql.conf.d/public.cnf
 echo "[mysqld]" >> /etc/mysql/mysql.conf.d/public.cnf
 echo "bind-address = 0.0.0.0" >> /etc/mysql/mysql.conf.d/public.cnf
 sudo systemctl restart mysql
