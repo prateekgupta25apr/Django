@@ -5,7 +5,7 @@ set -e
 
 echo "## Setting variables"
 # Getting base directory path using the BASH_SOURCE variable
-base_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd .. && pwd)"
+base_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd .. && cd .. && pwd)"
 public_ip=$(curl -s ifconfig.me)
 db_username=pg
 db_password=Pg#25Pg#25
@@ -16,7 +16,7 @@ echo "## done!!"
 
 echo "## Installing applications"
 sudo apt update
-sudo apt install python3=3.13 python3-pip python3-venv -y
+sudo apt install python3 python3-pip python3-venv -y
 sudo apt install nginx mysql-server expect supervisor -y
 echo "## done!!"
 
