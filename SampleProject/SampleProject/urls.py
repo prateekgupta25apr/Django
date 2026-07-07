@@ -32,5 +32,6 @@ urlpatterns = [
     path(context_path + '/emails/', include("emails.emails_urls")),
     path(context_path + '/cryptography/', include("cryptography_module.cryptography_urls")),
     path(context_path + '/sqs/', include("sqs.sqs_urls")),
+    path(context_path + '/bedrock/', include("bedrock.urls")),
     path(context_path + '/users/', include("users.users_urls")),
 ]

@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'open_search',
     'cryptography_module',
     'sqs',
+    'bedrock',
     'users'
 ]
 
