@@ -4,10 +4,13 @@ from email.mime.image import MIMEImage
 import requests
 from asgiref.sync import sync_to_async
 from django.core.mail import EmailMultiAlternatives
+from django.db.models import QuerySet
 from django.http import HttpResponse
 from django.db import connections, transaction
 import mysql.connector
 import django
+
+from project_utils.json_serializers import JSONSerializer
 
 
 def get_api_response(body, status):
@@ -268,3 +271,29 @@ async def send_email_async(
                 failed_attachments.append(attachment["file_name"])
     email.send()
     return failed_attachments
+
+
+async def get_formatted_dictionary(data):
+    """
+    @param data: Model object to be converted
+    @return: Dictionary object for the passed Model object
+    """
+    return (await get_formatted_list(data))[0]
+
+
+@sync_to_async
+def get_formatted_list(data):
+    """
+    @param data: QuerySet object or Model object to be converted
+    @return: List of Dictionary for the passed QuerySet object or Model object
+    """
+    # When a single object of Model is passed we are converting it to an object of
+    # list
+    if not isinstance(data, QuerySet):
+        data_list = list()
+        data_list.append(data)
+        data = data_list
+
+    # Returning formatted Basic Python object
+    return json.loads(JSONSerializer().serialize(data, use_natural_foreign_keys=True))
+

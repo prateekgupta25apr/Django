@@ -19,7 +19,14 @@ class LogMessagePreProcessor(logging.Formatter):
         return log_msg
 
 
-# For Uvicorn logs
+# For UviCorn logs
+# Firstly create a folder named logs in root directly
+#
+# For Django, in settings.py file at last do add
+# from prateek_gupta.UvicornLogs import uvicorn_logs_config
+# LOGGING = uvicorn_logs_config
+#
+# For FastAPI, it's used in the uvicorn's run method in uvicorn_log.py file
 uvicorn_logs_config = {
     'version': 1,
     'disable_existing_loggers': True,

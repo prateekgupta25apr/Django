@@ -41,7 +41,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
-    # Removed admin page urls, as we will be managing data via DB
+    # Commented as we don't need Admin Screen, and we will be managing data via DB
+    # 'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -168,6 +169,7 @@ else:
     EMAIL_HOST_PASSWORD = prateek_gupta.configuration_properties.get(
         "EMAILS_SMTP_PASSWORD", "")
 
+# For formatting Uvicorn Logs
 from prateek_gupta.UvicornLogs import uvicorn_logs_config
 
 LOGGING = uvicorn_logs_config

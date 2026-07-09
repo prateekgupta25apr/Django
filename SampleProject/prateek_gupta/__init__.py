@@ -86,6 +86,21 @@ async def import_modules():
 
 
 async def pre_construct_method_execution():
+    """
+    For Django this method is called in settings.py like this
+    import asyncio
+    import threading
+    import prateek_gupta
+
+    thread = threading.Thread(
+        target=asyncio.run,
+        args=(prateek_gupta.pre_construct_method_execution(),)
+    )
+    thread.start()
+    thread.join()
+
+    For Fast API it's the lifespan() method used in the FastAPI() class
+    """
     await import_modules()
     print("PreConstructMethods : ", pre_construct_method_dict)
 
@@ -98,6 +113,11 @@ async def pre_construct_method_execution():
 
 
 async def post_construct_method_execution():
+    """
+    For Django, it's called in the agsi.py file
+
+    For Fast API it's the lifespan() method used in the FastAPI() class
+    """
     print("PostConstructMethods : ", post_construct_method_dict)
 
     for function_name, details in post_construct_method_dict.items():

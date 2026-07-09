@@ -16,11 +16,10 @@ from prateek_gupta import post_construct_method_execution
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'SampleProject.settings')
 
 
-class ASGiApplication:
+class ASGIApplication:
 
     def __init__(self):
         self.app = get_asgi_application()
-
 
     async def __call__(self, scope, receive, send):
         if scope['type'] == 'lifespan':
@@ -28,4 +27,4 @@ class ASGiApplication:
         await self.app(scope, receive, send)
 
 
-application = ASGiApplication()
+application = ASGIApplication()
