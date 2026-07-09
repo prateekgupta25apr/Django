@@ -71,13 +71,23 @@ def hash_sha_256(plain_text):
     return hashlib.sha256(plain_text.encode("utf-8")).hexdigest()
 
 
-def hmac_sha_256(plain_text):
-    # Getting secret key in bytes
-    secret_key = configuration_properties.get("CRYPTOGRAPHY_SECRET_KEY").encode("utf-8")
+def hmac_sha_256_digest(key, plain_text):
+    key_bytes = key if isinstance(key, bytes) else key.encode("utf-8")
+    plain_text_bytes = (plain_text if isinstance(plain_text, bytes)
+                        else plain_text.encode("utf-8"))
+    return hmac.new(key_bytes, plain_text_bytes, hashlib.sha256).digest()
 
-    # Generating bytes for plain text
-    plain_text_bytes = plain_text.encode("utf-8")
-    return hmac.new(secret_key, plain_text_bytes, hashlib.sha256).hexdigest()
+
+def hmac_sha_256_hex(key, plain_text):
+    key_bytes = key if isinstance(key, bytes) else key.encode("utf-8")
+    plain_text_bytes = (plain_text if isinstance(plain_text, bytes)
+                        else plain_text.encode("utf-8"))
+    return hmac.new(key_bytes, plain_text_bytes, hashlib.sha256).hexdigest()
+
+
+def hmac_sha_256(plain_text):
+    secret_key = configuration_properties.get("CRYPTOGRAPHY_SECRET_KEY").encode("utf-8")
+    return hmac_sha_256_hex(secret_key, plain_text)
 
 
 def aes_encrypt(plain_text):

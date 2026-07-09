@@ -1,7 +1,5 @@
 import base64
 import datetime
-import hashlib
-import hmac
 import json
 import urllib.parse
 
@@ -10,6 +8,8 @@ import requests
 from botocore.auth import SigV4Auth
 from botocore.awsrequest import AWSRequest
 
+from prateek_gupta.cryptography import (
+    hash_sha_256, hmac_sha_256_digest, hmac_sha_256_hex)
 from prateek_gupta.exceptions import *
 
 local_run = prateek_gupta.local
@@ -32,21 +32,23 @@ def _prepare_request_context(
 
     time_val = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')
     date_val = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d')
-    payload_hash = hashlib.sha256(payload.encode('utf-8')).hexdigest()
+    payload_hash = hash_sha_256(payload)
 
     host = "host"
+    accept = "accept"
     content_length = "content-length"
     content_type = "content-type"
     x_content = "x-amz-content-sha256"
     x_date = "x-amz-date"
     headers_config = {
+        accept: "application/json",
         host: urllib.parse.urlparse(url).hostname,
         content_length: str(len(payload.encode("utf-8"))),
         content_type: request_content_type,
         x_content: payload_hash,
         x_date: time_val,
     }
-    signed_headers = [host, content_length, content_type, x_content, x_date]
+    signed_headers = [accept, host, content_length, content_type, x_content, x_date]
     return (payload, time_val, date_val, payload_hash, headers_config,
             signed_headers, request_content_type, request_method)
 
@@ -163,7 +165,7 @@ def generate_signed_headers_manually(
         canonical_str += f'{header}:{headers_config[header]}\n'
 
     canonical_str += f"\n{';'.join(srg_signed_headers)}\n{payload_hash}"
-    canonical_hash = hashlib.sha256(canonical_str.encode('utf-8')).hexdigest()
+    canonical_hash = hash_sha_256(canonical_str)
 
     str_to_sign = (
         f'AWS4-HMAC-SHA256\n{time_val}\n{date_val}/{region}/{service_name}/'
@@ -171,7 +173,7 @@ def generate_signed_headers_manually(
     )
 
     def sign(key, msg):
-        return hmac.new(key, msg.encode("utf-8"), hashlib.sha256).digest()
+        return hmac_sha_256_digest(key, msg)
 
     def get_signing_key(arg_secret_key, arg_date, arg_region, arg_service):
         k_date = sign(("AWS4" + arg_secret_key).encode("utf-8"), arg_date)
@@ -183,11 +185,7 @@ def generate_signed_headers_manually(
     def generate_signature(
             arg_secret_key, arg_date, arg_region, service, string_to_sign):
         signing_key = get_signing_key(arg_secret_key, arg_date, arg_region, service)
-        return hmac.new(
-            signing_key,
-            string_to_sign.encode("utf-8"),
-            hashlib.sha256
-        ).hexdigest()
+        return hmac_sha_256_hex(signing_key, string_to_sign)
 
     signature = generate_signature(
         secret_key,
@@ -198,6 +196,8 @@ def generate_signed_headers_manually(
     )
 
     signed_headers_response = {
+        "accept": headers_config["accept"],
+        "host": headers_config["host"],
         "content-type": request_content_type,
         "content-length": headers_config["content-length"],
         "X-Amz-Content-Sha256": payload_hash,
@@ -205,7 +205,7 @@ def generate_signed_headers_manually(
         "Authorization": (
             f"AWS4-HMAC-SHA256 "
             f"Credential={access_key}/{date_val}/{region}/{service_name}/aws4_request,"
-            f"SignedHeaders=content-length;content-type;host;x-amz-content-sha256;x-amz-date,"
+            f"SignedHeaders={';'.join(srg_signed_headers)},"
             f"Signature={signature}")
     }
 
