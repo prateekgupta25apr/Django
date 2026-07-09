@@ -1,6 +1,7 @@
 from prateek_gupta.LogManager import logger
 from prateek_gupta.bedrock_async import (
-    generate_embedding_for_image, generate_embedding_for_text)
+    generate_embedding_for_image, generate_embedding_for_text,
+    generate_signed_headers_manually, generate_signed_headers_using_built_in)
 from prateek_gupta.exceptions import ServiceException, module_lock_check
 from prateek_gupta.utils import request_mapping
 from project_utils import get_success_response, get_error_response
@@ -47,4 +48,64 @@ async def generate_embedding_for_text_request(request):
     except Exception:
         response = get_error_response(ServiceException())
     logger.info("Existing generate_embedding_for_text_request()")
+    return response
+
+
+@request_mapping("POST")
+async def generate_signed_headers_manually_request(request):
+    logger.info("Entering generate_signed_headers_manually_request()")
+    # noinspection PyBroadException
+    try:
+        module_lock_check("BEDROCK_ENABLE", "A")
+
+        url = request.POST.get('url')
+        payload = request.POST.get('payload')
+        request_method = request.POST.get('request_method', 'POST')
+        request_content_type = request.POST.get(
+            'request_content_type', 'application/json')
+        service_name = request.POST.get('service_name', 'bedrock')
+        api_call = str(request.POST.get('api_call', 'false')).lower() in ('true', '1', 'yes')
+
+        result = await generate_signed_headers_manually(
+            url, payload, request_method, request_content_type,
+            service_name, api_call)
+        response = get_success_response({
+            "message": "Signed headers generated successfully",
+            **result,
+        })
+    except ServiceException as e:
+        response = get_error_response(e)
+    except Exception:
+        response = get_error_response(ServiceException())
+    logger.info("Existing generate_signed_headers_manually_request()")
+    return response
+
+
+@request_mapping("POST")
+async def generate_signed_headers_using_built_in_request(request):
+    logger.info("Entering generate_signed_headers_using_built_in_request()")
+    # noinspection PyBroadException
+    try:
+        module_lock_check("BEDROCK_ENABLE", "A")
+
+        url = request.POST.get('url')
+        payload = request.POST.get('payload')
+        request_method = request.POST.get('request_method', 'POST')
+        request_content_type = request.POST.get(
+            'request_content_type', 'application/json')
+        service_name = request.POST.get('service_name', 'bedrock')
+        api_call = str(request.POST.get('api_call', 'false')).lower() in ('true', '1', 'yes')
+
+        result = await generate_signed_headers_using_built_in(
+            url, payload, request_method, request_content_type,
+            service_name, api_call)
+        response = get_success_response({
+            "message": "Signed headers generated successfully",
+            **result,
+        })
+    except ServiceException as e:
+        response = get_error_response(e)
+    except Exception:
+        response = get_error_response(ServiceException())
+    logger.info("Existing generate_signed_headers_using_built_in_request()")
     return response
