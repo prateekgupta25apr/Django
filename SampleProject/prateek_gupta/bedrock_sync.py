@@ -225,14 +225,14 @@ def generate_signed_headers_using_built_in(
 
     access_key, secret_key, region = _get_aws_credentials()
 
-    (payload, time_val, date_val, payload_hash, headers_config,
-     signed_headers, request_content_type, request_method) = _prepare_request_context(
+    (payload, time_val, date_val, payload_hash, headers_data,
+     list_of_headers_to_be_signed, request_content_type, request_method) = _prepare_request_context(
         url, payload, request_method, request_content_type)
 
-    arg_signed_headers = sorted(signed_headers)
+    arg_signed_headers = sorted(list_of_headers_to_be_signed)
     arg_headers = {}
     for header in arg_signed_headers:
-        arg_headers[header] = headers_config[header]
+        arg_headers[header] = headers_data[header]
 
     if request_method == "POST":
         request = AWSRequest(
