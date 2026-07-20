@@ -18,7 +18,7 @@ def get_data_request(request):
     # noinspection PyBroadException
     try:
         primary_key = request.GET.get("primary_key", None)
-        result_list = get_data(primary_key)
+        result_list = get_data(request.tenant_context.schema_name, primary_key)
         response = get_success_response({"data": result_list})
     except ServiceException as e:
         response = get_error_response(e)
@@ -39,7 +39,7 @@ def save_data_request(request):
         else:
             raise ServiceException(
                 exception_type=ServiceException.ExceptionType.MISSING_REQUIRED_PARAMETERS)
-        save_data(data)
+        save_data(request.tenant_context.schema_name, data)
         response = get_success_response({"message": "Data saved successfully"})
     except ServiceException as e:
         response = get_error_response(e)
@@ -58,8 +58,9 @@ def update_data_request(request):
         payload, _ = parser.parse()
         primary_key = payload.get("primary_key", None)
         col_1 = payload.get("col_1", None)
-        col_2 = payload.get("col_2", None)
-        update_data(primary_key, col_1, col_2)
+        col_2 = payload.get("col_2", False)
+        col_2 = (str(col_2).lower() == "true" if col_2 is not None else False)
+        update_data(request.tenant_context.schema_name, primary_key, col_1, col_2)
         response = get_success_response({"message": "Data updated successfully"})
     except ServiceException as e:
         response = get_error_response(e)
@@ -79,9 +80,10 @@ def partial_update_data_request(request):
         primary_key = payload.get("primary_key", None)
         col_1 = payload.get("col_1", None)
         col_2 = payload.get("col_2", None)
+        col_2 = (str(col_2).lower() == "true" if col_2 is not None else False)
 
         if col_1 is not None or col_2 is not None:
-            partial_update_data(primary_key, col_1, col_2)
+            partial_update_data(request.tenant_context.schema_name, primary_key, col_1, col_2)
             response = get_success_response({"message": "Data updated successfully"})
         else:
             raise ServiceException(
@@ -99,7 +101,7 @@ def delete_data_request(request, primary_key):
     logger.info("Entering delete_data_request()")
     # noinspection PyBroadException
     try:
-        delete_data(primary_key)
+        delete_data(request.tenant_context.schema_name, primary_key)
         response = get_success_response({"message": "Data deleted successfully"})
     except ServiceException as e:
         response = get_error_response(e)
@@ -116,7 +118,7 @@ def add_attachment_request(request):
     try:
         attachment = request.FILES['attachment']
         table_1_primary_key = request.POST.get('table_1_primary_key', "")
-        add_attachment(table_1_primary_key, attachment)
+        add_attachment(request.tenant_context.schema_name, table_1_primary_key, attachment)
         response = get_success_response({"message": "Attachment added successfully"})
     except ServiceException as e:
         response = get_error_response(e, request=request)
@@ -131,7 +133,7 @@ def get_attachment_request(request):
     # noinspection PyBroadException
     try:
         primary_key: str = request.GET.get("primaryKey")
-        file_name: str = get_attachment_path(primary_key)
+        file_name: str = get_attachment_path(request.tenant_context.schema_name, primary_key)
         file_content = get_file_content_in_bytes(file_name)
 
         # Setting opened file as content for the response
@@ -152,4 +154,3 @@ def get_attachment_request(request):
         return get_error_response(e, request=request)
     except Exception:
         return get_error_response(ServiceException())
-

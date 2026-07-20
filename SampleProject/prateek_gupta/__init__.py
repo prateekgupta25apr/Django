@@ -1,4 +1,5 @@
 import asyncio
+from enum import Enum
 from pathlib import Path
 
 from prateek_gupta.utils import (load_properties_from_file)
@@ -126,3 +127,8 @@ async def post_construct_method_execution():
                                           **details.get("kwargs", {}))
         else:
             details.get("function")(*details.get("args", []), **details.get("kwargs", {}))
+
+
+class DBType(Enum):
+    MySQL = "mysql"
+    Postgres = "postgres"

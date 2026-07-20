@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 
+from prateek_gupta import DBType
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -102,8 +104,11 @@ WSGI_APPLICATION = 'SampleProject.wsgi.application'
 # }
 
 
-DATABASES = {
-    'default': {
+DATABASES = {}
+db_type = prateek_gupta.configuration_properties.get("db_type", "mysql")
+# MySQL
+if db_type == DBType.MySQL.value:
+    DATABASES['default'] = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': prateek_gupta.configuration_properties['db_default_schema'],
         'USER': prateek_gupta.configuration_properties['db_user_name'],
@@ -111,7 +116,17 @@ DATABASES = {
         'HOST': prateek_gupta.configuration_properties['db_host'],
         'PORT': '3306',
     }
-}
+
+# Postgres
+if db_type == DBType.Postgres.value:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': prateek_gupta.configuration_properties['db_default_database'],
+        'USER': prateek_gupta.configuration_properties['db_user_name'],
+        'PASSWORD': prateek_gupta.configuration_properties['db_password'],
+        'HOST': prateek_gupta.configuration_properties['db_host'],
+        'PORT': '5432',
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators

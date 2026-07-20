@@ -59,6 +59,7 @@ async def update_data_request(request):
         primary_key = payload.get("primary_key", None)
         col_1 = payload.get("col_1", None)
         col_2 = payload.get("col_2", None)
+        col_2 = (str(col_2).lower() == "true" if col_2 is not None else False)
         await update_data(primary_key, col_1, col_2)
         response = get_success_response({"message": "Data updated successfully"})
     except ServiceException as e:

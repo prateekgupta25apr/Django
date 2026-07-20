@@ -4,7 +4,8 @@ from prateek_gupta import post_construct_method
 from prateek_gupta.LogManager import logger, rotate_log_files
 from prateek_gupta.exceptions import ServiceException
 from prateek_gupta.utils import request_mapping
-from project_utils import get_error_response, get_success_response, get_api_response, execute_query
+from project_utils import (
+    get_error_response, get_success_response, get_api_response, execute_query, execute_model_query)
 
 
 @request_mapping('GET')
@@ -38,10 +39,9 @@ async def health_check(request):
                                      "") + "()")
     # noinspection PyBroadException
     try:
-        query = "SELECT DATABASE();"
-
-        result = await execute_query(query, 'fetchone')
-        logger.info("Health check for schema : " + str(result))
+        from core.models import Configurations
+        await execute_model_query(
+            configuration_properties['db_default_schema'], Configurations.objects.all)
 
         response = get_success_response({"message": 'Healthy'})
     except Exception:
@@ -96,9 +96,17 @@ async def load_config_values(request):
 @post_construct_method()
 async def load_config_value_from_db():
     from prateek_gupta import configuration_properties
-    result = await execute_query("select `key`,value from configurations;", "fetchall")
-    for row in result:
-        configuration_properties[row[0]] = row[1]
+
+    # noinspection PyBroadException
+    try:
+        from core.models import Configurations
+        configs = await execute_model_query(
+            configuration_properties['db_default_schema'], Configurations.objects.all)
+
+        async for row in configs:
+            configuration_properties[row.key] = row.value
+    except Exception:
+        print("Error in load_config_value_from_db()")
 
 
 @request_mapping('GET')

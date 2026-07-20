@@ -1,6 +1,7 @@
+import asyncio
 import datetime
 import json
-from asyncio import Future
+from concurrent.futures import Future
 
 from django.db import IntegrityError
 from django.utils import timezone
@@ -10,7 +11,8 @@ from prateek_gupta.exceptions import ServiceException, log_error
 from prateek_gupta.password_utils import valid_password, encrypt_password
 from prateek_gupta.thread_manager import executor
 from prateek_gupta.utils import request_mapping
-from project_utils import get_error_response, validate_user_login, get_success_response
+from project_utils import (
+    get_error_response, validate_user_login, get_success_response, execute_model_query)
 from .models import User
 
 
@@ -24,7 +26,12 @@ def login(request):
         remember_me = body.get("remember_me", False)
 
         # Fetching user by email
-        future: Future = executor.submit(User.objects.get, email=email)
+        future: Future = executor.submit(
+            asyncio.run, execute_model_query(
+                request.tenant_context.schema_name,
+                User.objects.get,
+                email=email
+            ))
         user = future.result()
 
         # Authenticating provided user details
@@ -69,6 +76,7 @@ def sign_up(request):
         try:
             # Saving user
             added_user = add_user(
+                request.tenant_context.schema_name,
                 first_name=first_name, last_name=last_name, email=email, password=password)
 
             user_details = prepare_user_details(added_user, remember_me)
@@ -123,7 +131,12 @@ def forgot_password(request):
 
         # Retrieving the User object
         try:
-            future: Future = executor.submit(User.objects.get, email=email)
+            future: Future = executor.submit(
+                asyncio.run, execute_model_query(
+                    request.tenant_context.schema_name,
+                    User.objects.get,
+                    email=email
+                ))
             user = future.result()
         except User.DoesNotExist:
             # If no user account is associated with the provided email then we
@@ -154,7 +167,11 @@ def forgot_password(request):
         # Updating the forgot_password_request
         user.forgot_password_request = True
 
-        future: Future = executor.submit(user.save)
+        future: Future = executor.submit(
+            asyncio.run, execute_model_query(
+                request.tenant_context.schema_name,
+                user.save
+            ))
         future.result()
 
         # Sending email to the user
@@ -231,7 +248,12 @@ def reset_password(request):
                 raise ServiceException()
 
             # Retrieving user by using the id
-            future: Future = executor.submit(User.objects.get, user_id=user_id)
+            future: Future = executor.submit(
+                asyncio.run, execute_model_query(
+                    request.tenant_context.schema_name,
+                    User.objects.get,
+                    user_id=user_id
+                ))
             user = future.result()
 
             if not user.forgot_password_request:
@@ -253,7 +275,11 @@ def reset_password(request):
         user.forgot_password_request = False
 
         # Saving user's password
-        future: Future = executor.submit(user.save)
+        future: Future = executor.submit(
+            asyncio.run, execute_model_query(
+                request.tenant_context.schema_name,
+                user.save
+            ))
         future.result()
 
         result = dict()
@@ -279,10 +305,19 @@ def delete_user(request):
 
         # noinspection PyBroadException
         try:
-            future: Future = executor.submit(User.objects.get, user_id=request.user_context.user_id)
+            future: Future = executor.submit(
+                asyncio.run, execute_model_query(
+                    request.tenant_context.schema_name,
+                    User.objects.get,
+                    user_id=request.user_context.user_id
+                ))
             user = future.result()
 
-            future: Future = executor.submit(user.delete)
+            future: Future = executor.submit(
+                asyncio.run, execute_model_query(
+                    request.tenant_context.schema_name,
+                    user.delete
+                ))
             future.result()
 
             # Logging out the user
@@ -336,7 +371,12 @@ def change_password(request):
                 message="Please login and then revisit"))
 
         # Retrieving user by using the id
-        future: Future = executor.submit(User.objects.get, user_id=request.user_context.user_id)
+        future: Future = executor.submit(
+            asyncio.run, execute_model_query(
+                request.tenant_context.schema_name,
+                User.objects.get,
+                user_id=request.user_context.user_id
+            ))
         user = future.result()
 
         # Validating provided password
@@ -351,7 +391,11 @@ def change_password(request):
         user.forgot_password_request = False
 
         # Saving user's password
-        future: Future = executor.submit(user.save)
+        future: Future = executor.submit(
+            asyncio.run, execute_model_query(
+                request.tenant_context.schema_name,
+                user.save
+            ))
         future.result()
 
         return get_success_response(
@@ -402,7 +446,12 @@ def get_user_details(request):
                 message="Please login and then revisit"))
 
         # Fetching user by id
-        future: Future = executor.submit(User.objects.get, user_id=request.user_context.user_id)
+        future: Future = executor.submit(
+            asyncio.run, execute_model_query(
+                request.tenant_context.schema_name,
+                User.objects.get,
+                user_id=request.user_context.user_id
+            ))
         user = future.result()
 
         result = {
@@ -435,10 +484,12 @@ def save_user_details(request):
         user_details = None
         try:
             future: Future = executor.submit(
-                User.objects.update_or_create,
-                user_id=request.user_context.user_id,
-                defaults=payload
-            )
+                asyncio.run, execute_model_query(
+                    request.tenant_context.schema_name,
+                    User.objects.update_or_create,
+                    user_id=request.user_context.user_id,
+                    defaults=payload
+                ))
             user, _ = future.result()
 
             # Preparing user details for response
@@ -462,13 +513,16 @@ def save_user_details(request):
         return get_error_response(ServiceException())
 
 
-def add_user(first_name, last_name, email, password):
+def add_user(schema_name, first_name, last_name, email, password):
     """This method takes user details as argument and add user in DB.
     Password is encrypted before saving"""
     future: Future = executor.submit(
-        User.objects.create,
-        first_name=first_name,
-        last_name=last_name,
-        email=email,
-        password=encrypt_password(password))
+        asyncio.run, execute_model_query(
+            schema_name,
+            User.objects.create,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            password=encrypt_password(password)
+        ))
     return future.result()

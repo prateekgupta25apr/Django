@@ -117,6 +117,23 @@ def execute_thread_query(query, method=None):
         raise e
 
 
+@sync_to_async
+def execute_model_query(schema_name, method, *args, **kwargs):
+    change_schema(schema_name)
+    return method(*args, **kwargs)
+
+
+def change_schema(schema_name):
+    from prateek_gupta import configuration_properties
+    from prateek_gupta import DBType
+    if configuration_properties.get("db_type", "") == DBType.MySQL.value:
+        with connections['default'].cursor() as cursor:
+            cursor.execute(f"use {schema_name}")
+    elif configuration_properties.get("db_type", "") == DBType.Postgres.value:
+        with connections['default'].cursor() as cursor:
+            cursor.execute(f"set search_path to {schema_name},public")
+
+
 def validate_user_login(request):
     from prateek_gupta.exceptions import ServiceException
     if request.user_context.user_id <= 0:
@@ -296,4 +313,3 @@ def get_formatted_list(data):
 
     # Returning formatted Basic Python object
     return json.loads(JSONSerializer().serialize(data, use_natural_foreign_keys=True))
-

@@ -1,6 +1,5 @@
 import datetime
 
-from django.db import connections
 from django.http import HttpResponse
 from django.utils.deprecation import MiddlewareMixin
 
@@ -8,7 +7,7 @@ from prateek_gupta import configuration_properties
 from prateek_gupta.LogManager import logger
 from prateek_gupta.exceptions import ServiceException
 from prateek_gupta.utils import process_cookie
-from project_utils import get_error_response
+from project_utils import get_error_response, change_schema
 
 
 class SessionFilterMiddleware(MiddlewareMixin):
@@ -75,8 +74,7 @@ class TenantContext:
                 try:
                     tenant_id = request.META.get("HTTP_TENANT_ID", "1")
                     self.schema_name = db_schema_prefix + str(tenant_id)
-                    with connections['default'].cursor() as cursor:
-                        cursor.execute("use " + self.schema_name)
+                    change_schema(self.schema_name)
                 except Exception:
                     logger.error("Error occurred while setting schema for the tenant "
                                  "provided hence setting default schema")
@@ -86,8 +84,7 @@ class TenantContext:
 
             if use_default_schema:
                 self.schema_name = configuration_properties['db_default_schema']
-                with connections['default'].cursor() as cursor:
-                    cursor.execute("use " + self.schema_name)
+                change_schema(self.schema_name)
         except Exception:
             logger.error("An error occurred while setting base_url in current session")
         super().__init__()

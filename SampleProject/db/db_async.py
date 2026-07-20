@@ -1,4 +1,4 @@
-from db.models import Table1AttachmentMapping
+from db.models import Table1AttachmentMapping, Table1
 from prateek_gupta.utils import execute_as_async
 from project_utils import execute_query
 
@@ -18,15 +18,17 @@ async def get_data(primary_key):
 
 
 async def save_data(data):
-    query = (f"insert into table_1 values "
-             f"({data['primary_key']},'{data['col_1']}',{data['col_2']})")
-    await execute_query(query)
+    await execute_as_async(
+        Table1.objects.create,
+        primary_key=data.get("primary_key", None),
+        col_1=data["col_1"],
+        col_2=data["col_2"]
+    )
 
 
 async def update_data(primary_key, col_1, col_2):
-    query = (f"update table_1 set col_1='{col_1}',col_2={col_2} where "
-             f"primary_key={primary_key}")
-    await execute_query(query)
+    await execute_as_async(Table1.objects.filter(primary_key=primary_key)
+                           .update, col_1=col_1, col_2=col_2)
 
 
 async def partial_update_data(primary_key, col_1=None, col_2=None):
@@ -45,8 +47,9 @@ async def partial_update_data(primary_key, col_1=None, col_2=None):
 
 
 async def delete_data(primary_key):
-    query = f"delete from table_1 where primary_key={primary_key}"
-    await execute_query(query)
+    await execute_as_async(
+        Table1.objects.filter(primary_key=primary_key).delete
+    )
 
 
 async def add_attachment(table_1_primary_key, attachment):
@@ -58,4 +61,4 @@ async def add_attachment(table_1_primary_key, attachment):
 
 async def get_attachment_path(primary_key):
     obj = await execute_as_async(Table1AttachmentMapping.objects.get, primary_key=primary_key)
-    return obj.attachment_path
+    return str(obj.attachment_path)
