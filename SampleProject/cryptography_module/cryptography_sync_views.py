@@ -14,7 +14,8 @@ def des_encrypt_request(request):
         module_lock_check("CRYPTOGRAPHY_ENABLED", "S")
 
         plain_text = request.POST.get("plain_text", "")
-        encrypted_data = des_encrypt(plain_text)
+        secret_key = request.POST.get("secret_key", "")
+        encrypted_data = des_encrypt(plain_text, secret_key)
         response = get_success_response({"message": "Successfully encrypted data",
                                          "Encrypted Data(Hex)": encrypted_data.hex()})
     except ServiceException as e:
@@ -33,9 +34,10 @@ def des_decrypt_request(request):
         module_lock_check("CRYPTOGRAPHY_ENABLED", "S")
 
         encrypted_text = request.POST.get("encrypted_text", "")
+        secret_key = request.POST.get("secret_key", "")
         if encrypted_text:
             encrypted_data = bytes.fromhex(encrypted_text)
-            decrypted_data = des_decrypt(encrypted_data)
+            decrypted_data = des_decrypt(encrypted_data, secret_key)
             response = get_success_response({"message": "Successfully encrypted data",
                                              "Decrypted Data": decrypted_data})
         else:
@@ -80,8 +82,9 @@ def hmac_sha_256_request(request):
         module_lock_check("CRYPTOGRAPHY_ENABLED", "S")
 
         plain_text = request.POST.get("plain_text", "")
+        secret_key = request.POST.get("secret_key", "")
         if plain_text:
-            hashed_data = hmac_sha_256(plain_text)
+            hashed_data = hmac_sha_256(plain_text, secret_key)
             response = get_success_response({"message": "Successfully generated HMac",
                                              "HMac(Hex)": hashed_data})
         else:
@@ -103,7 +106,8 @@ def aes_encrypt_request(request):
         module_lock_check("CRYPTOGRAPHY_ENABLED", "S")
 
         plain_text = request.POST.get("plain_text", "")
-        encrypted_data = aes_encrypt(plain_text)
+        secret_key = request.POST.get("secret_key", "")
+        encrypted_data = aes_encrypt(plain_text, secret_key)
         response = get_success_response({"message": "Successfully encrypted data",
                                          "Encrypted Data(Hex)": encrypted_data.hex()})
     except ServiceException as e:
@@ -122,9 +126,10 @@ def aes_decrypt_request(request):
         module_lock_check("CRYPTOGRAPHY_ENABLED", "S")
 
         encrypted_text = request.POST.get("encrypted_text", "")
+        secret_key = request.POST.get("secret_key", "")
         if encrypted_text:
             encrypted_data = bytes.fromhex(encrypted_text)
-            decrypted_data = aes_decrypt(encrypted_data)
+            decrypted_data = aes_decrypt(encrypted_data, secret_key)
             response = get_success_response({"message": "Successfully decrypted data",
                                              "Decrypted Data": decrypted_data})
         else:

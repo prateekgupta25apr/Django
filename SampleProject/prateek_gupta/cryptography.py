@@ -9,9 +9,17 @@ from Crypto.Util.Padding import pad, unpad
 from prateek_gupta import configuration_properties
 
 
-def des_encrypt(plaintext):
+def _resolve_secret_key(secret_key=None):
+    # Using the secret key from the API payload if provided, else falling back to
+    # the value of CRYPTOGRAPHY_SECRET_KEY from the configuration
+    if secret_key:
+        return secret_key.encode("utf-8") if isinstance(secret_key, str) else secret_key
+    return configuration_properties.get("CRYPTOGRAPHY_SECRET_KEY").encode("utf-8")
+
+
+def des_encrypt(plaintext, secret_key=None):
     # Getting secret key in bytes
-    secret_key = configuration_properties.get("CRYPTOGRAPHY_SECRET_KEY").encode("utf-8")
+    secret_key = _resolve_secret_key(secret_key)
     # DES requires 8-byte key
     if len(secret_key) != 8:
         raise ValueError("DES key must be exactly 8 bytes")
@@ -40,8 +48,8 @@ def des_encrypt(plaintext):
     return output.getvalue()
 
 
-def des_decrypt(encrypted_data):
-    secret_key = configuration_properties.get("CRYPTOGRAPHY_SECRET_KEY").encode("utf-8")
+def des_decrypt(encrypted_data, secret_key=None):
+    secret_key = _resolve_secret_key(secret_key)
     if len(secret_key) != 8:
         raise ValueError("DES key must be exactly 8 bytes")
 
@@ -85,14 +93,14 @@ def hmac_sha_256_hex(key, plain_text):
     return hmac.new(key_bytes, plain_text_bytes, hashlib.sha256).hexdigest()
 
 
-def hmac_sha_256(plain_text):
-    secret_key = configuration_properties.get("CRYPTOGRAPHY_SECRET_KEY").encode("utf-8")
+def hmac_sha_256(plain_text, secret_key=None):
+    secret_key = _resolve_secret_key(secret_key)
     return hmac_sha_256_hex(secret_key, plain_text)
 
 
-def aes_encrypt(plain_text):
+def aes_encrypt(plain_text, secret_key=None):
     # Getting secret key in bytes
-    secret_key = configuration_properties.get("CRYPTOGRAPHY_SECRET_KEY").encode("utf-8")
+    secret_key = _resolve_secret_key(secret_key)
 
     # Generating hash, which will be of size 32
     secret_key = hashlib.sha256(secret_key).digest()
@@ -124,9 +132,9 @@ def aes_encrypt(plain_text):
     return output.getvalue()
 
 
-def aes_decrypt(encrypted_data):
+def aes_decrypt(encrypted_data, secret_key=None):
     # Getting secret key in bytes
-    secret_key = configuration_properties.get("CRYPTOGRAPHY_SECRET_KEY").encode("utf-8")
+    secret_key = _resolve_secret_key(secret_key)
 
     # Generating hash, which will be of size 32
     secret_key = hashlib.sha256(secret_key).digest()
